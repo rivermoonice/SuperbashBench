@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Intelligence Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #030305;
+            --surface: #0a0a0f;
+            --card: #111118;
+            --card-hover: #181822;
+            --border: rgba(255,255,255,0.06);
+            --border-hover: rgba(255,255,255,0.12);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --green: #22c55e;
+            --green-dim: rgba(34,197,94,0.15);
+            --red: #ef4444;
+            --red-dim: rgba(239,68,68,0.15);
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --gold: #eab308;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            background: rgba(10,10,15,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .header-logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #eab308, #f59e0b);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .header h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .header-live {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .header-search {
+            position: relative;
+            width: 280px;
+        }
+        
+        .header-search input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.875rem;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .header-search input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+        
+        .header-search input::placeholder { color: var(--text-dim); }
+        
+        .header-search svg {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dim);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.55rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .btn:hover {
+            background: var(--card-hover);
+            color: var(--text);
+            border-color: var(--border-hover);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #a855f7);
+            border: none;
+            color: #fff;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            color: #fff;
+        }
+        
+        .btn-sort.active {
+            border-color: var(--accent);
+            color: var(--accent-light);
+        }
+        
+        /* Global stats bar */
+        .global-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .global-stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.2s;
+        }
+        
+        .global-stat:hover {
+            border-color: var(--border-hover);
+        }
+        
+        .global-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.4rem;
+        }
+        
+        .global-stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        
+        .global-stat-change {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.2rem;
+        }
+        
+        .positive { color: var(--green); }
+        .negative { color: var(--red); }
+        
+        /* Coin grid */
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem 2rem;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        
+        .dashboard-header h2 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .coin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .coin-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .coin-card:hover {
+            background: var(--card-hover);
+            border-color: rgba(99,102,241,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.3), 0 0 30px rgba(99,102,241,0.06);
+        }
+        
+        .coin-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 0;
+            background: linear-gradient(90deg, var(--accent), #a855f7);
+            transition: height 0.25s;
+        }
+        
+        .coin-card:hover::after {
+            height: 3px;
+        }
+        
+        .coin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .coin-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .coin-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .coin-name-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .coin-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .coin-symbol {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+        
+        .coin-rank {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            background: rgba(255,255,255,0.04);
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+        }
+        
+        .coin-price-section {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        
+        .coin-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .coin-change {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+        
+        .coin-change.positive {
+            background: var(--green-dim);
+        }
+        
+        .coin-change.negative {
+            background: var(--red-dim);
+        }
+        
+        .coin-chart {
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+        
+        .coin-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        
+        .coin-footer span {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .coin-footer .label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.15rem;
+        }
+        
+        .coin-footer .value {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        
+        /* Detail Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(3,3,5,0.85);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 2rem 1rem;
+            overflow-y: auto;
+        }
+        
+        .modal-overlay.visible {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalIn 0.3s ease;
+        }
+        
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(30px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--surface);
+            z-index: 10;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .modal-coin {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .modal-coin img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+        
+        .modal-coin h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+        
+        .modal-coin .symbol {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .modal-close:hover {
+            background: var(--card);
+            color: var(--text);
+        }
+        
+        .modal-body {
+            padding: 1.5rem 2rem;
+        }
+        
+        .modal-price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .modal-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+        
+        .modal-change {
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.3rem 0.75rem;
+            border-radius: 8px;
+        }
+        
+        .modal-chart-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            height: 320px;
+        }
+        
+        .modal-chart-wrap canvas {
+            max-height: 280px;
+        }
+        
+        .modal-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+        }
+        
+        .modal-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.3rem;
+        }
+        
+        .modal-stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .modal-stat-change {
+            font-size: 0.75rem;
+            margin-top: 0.15rem;
+        }
+        
+        .modal-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+        
+        .modal-desc h3 {
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .time-selector {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .time-btn {
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.15s;
+        }
+        
+        .time-btn:hover, .time-btn.active {
+            background: var(--card-hover);
+            border-color: var(--accent);
+            color: var(--accent-light);
+        }
+        
+        /* Loading */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            gap: 1rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+        }
+        
+        .error button {
+            margin-top: 1rem;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+        
+        @media (max-width: 768px) {
+            .header { padding: 0.875rem 1rem; }
+            .header-search { width: 100%; order: 3; }
+            .coin-grid { grid-template-columns: 1fr; }
+            .global-stats { padding: 1rem; }
+            .dashboard { padding: 0 1rem 1rem; }
+            .modal-body, .modal-header { padding: 1rem; }
+            .modal-price { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-brand">
+            <div class="header-logo">₿</div>
+            <div>
+                <h1>Crypto Intelligence</h1>
+            </div>
+        </div>
+        <div class="header-live">
+            <span class="live-dot"></span>
+            Live Data
+        </div>
+        <div class="header-search">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>
+            <input type="text" id="searchInput" placeholder="Search coins..." oninput="filterCoins()">
+        </div>
+        <div class="header-actions">
+            <button class="btn" id="refreshBtn" onclick="refreshData()">⟳ Refresh</button>
+        </div>
+    </header>
+    
+    <div class="global-stats" id="globalStats">
+        <div class="loading"><div class="spinner"></div></div>
+    </div>
+    
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <h2>Top Cryptocurrencies</h2>
+            <div class="header-actions">
+                <button class="btn btn-sort active" data-sort="market_cap" onclick="sortCoins('market_cap')">Market Cap</button>
+                <button class="btn btn-sort" data-sort="price" onclick="sortCoins('price')">Price</button>
+                <button class="btn btn-sort" data-sort="volume" onclick="sortCoins('volume')">Volume</button>
+                <button class="btn btn-sort" data-sort="change" onclick="sortCoins('change')">24h %</button>
+            </div>
+        </div>
+        <div class="coin-grid" id="coinGrid">
+            <div class="loading"><div class="spinner"></div><p>Loading market data...</p></div>
+        </div>
+    </div>
+    
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="detailModal" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-coin" id="modalCoinInfo"></div>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-price-row" id="modalPriceRow"></div>
+                
+                <div class="time-selector">
+                    <button class="time-btn" data-days="1" onclick="changeTimeframe(1)">24H</button>
+                    <button class="time-btn" data-days="7" onclick="changeTimeframe(7)">7D</button>
+                    <button class="time-btn active" data-days="30" onclick="changeTimeframe(30)">30D</button>
+                    <button class="time-btn" data-days="90" onclick="changeTimeframe(90)">90D></button>
+                    <button class="time-btn" data-days="365" onclick="changeTimeframe(365)">1Y</button>
+                </div>
+                
+                <div class="modal-chart-wrap">
+                    <canvas id="detailChart"></canvas>
+                </div>
+                
+                <div class="modal-stats-grid" id="modalStats"></div>
+                
+                <div class="modal-desc" id="modalDesc"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api.coingecko.com/api/v3';
+        let allCoins = [];
+        let globalData = null;
+        let currentSort = 'market_cap';
+        let searchTerm = '';
+        let selectedCoinId = null;
+        let currentDays = 30;
+        let detailChart = null;
+        let autoRefresh = null;
+        
+        // Fetch global market data
+        async function fetchGlobal() {
+            try {
+                const res = await fetch(`${API_BASE}/global`);
+                globalData = await res.json();
+                renderGlobal();
+            } catch (e) {
+                console.error('Global fetch failed:', e);
+            }
+        }
+        
+        // Fetch top coins
+        async function fetchCoins() {
+            const grid = document.getElementById('coinGrid');
+            grid.innerHTML = `<div class="loading"><div class="spinner"></div><p>Loading market data...</p></div>`;
+            
+            try {
+                const res = await fetch(
+                    `${API_BASE}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=true&price_change_percentage=1h,24h,7d,30d`
+                );
+                allCoins = await res.json();
+                renderCoins();
+            } catch (e) {
+                grid.innerHTML = `
+                    <div class="error">
+                        <p>Failed to load data. Rate limit may apply.</p>
+                        <button class="btn btn-primary" onclick="refreshData()">Try Again</button>
+                    </div>`;
+            }
+        }
+        
+        function renderGlobal() {
+            if (!globalData) return;
+            const d = globalData.data;
+            const totalCap = d.total_market_cap?.usd || 0;
+            const totalVol = d.total_volume?.usd || 0;
+            const btcDom = d.market_cap_percentage?.btc || 0;
+            const ethDom = d.market_cap_percentage?.eth || 0;
+            const mcapChange = d.market_cap_change_percentage_24h_usd || 0;
+            
+            document.getElementById('globalStats').innerHTML = `
+                <div class="global-stat">
+                    <div class="global-stat-label">Total Market Cap</div>
+                    <div class="global-stat-value">$${formatCompact(totalCap)}</div>
+                    <div class="global-stat-change ${mcapChange >= 0 ? 'positive' : 'negative'}">${mcapChange >= 0 ? '+' : ''}${mcapChange.toFixed(2)}%</div>
+                </div>
+                <div class="global-stat">
+                    <div class="global-stat-label">24h Volume</div>
+                    <div class="global-stat-value">$${formatCompact(totalVol)}</div>
+                </div>
+                <div class="global-stat">
+                    <div class="global-stat-label">BTC Dominance</div>
+                    <div class="global-stat-value">${btcDom.toFixed(1)}%</div>
+                </div>
+                <div class="global-stat">
+                    <div class="global-stat-label">ETH Dominance</div>
+                    <div class="global-stat-value">${ethDom.toFixed(1)}%</div>
+                </div>
+                <div class="global-stat">
+                    <div class="global-stat-label">Active Cryptos</div>
+                    <div class="global-stat-value">${d.active_cryptocurrencies?.toLocaleString() || '--'}</div>
+                </div>
+                <div class="global-stat">
+                    <div class="global-stat-label">Markets</div>
+                    <div class="global-stat-value">${d.markets?.toLocaleString() || '--'}</div>
+                </div>
+            `;
+        }
+        
+        function getFilteredAndSorted() {
+            let coins = allCoins;
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                coins = coins.filter(c => 
+                    c.name.toLowerCase().includes(term) || 
+                    c.symbol.toLowerCase().includes(term)
+                );
+            }
+            
+            return [...coins].sort((a, b) => {
+                switch(currentSort) {
+                    case 'price': return b.current_price - a.current_price;
+                    case 'volume': return b.total_volume - a.total_volume;
+                    case 'change': return b.price_change_percentage_24h - a.price_change_percentage_24h;
+                    default: return b.market_cap - a.market_cap;
+                }
+            });
+        }
+        
+        function renderCoins() {
+            const coins = getFilteredAndSorted();
+            const grid = document.getElementById('coinGrid');
+            
+            if (coins.length === 0) {
+                grid.innerHTML = `<div class="error"><p>No coins found.</p></div>`;
+                return;
+            }
+            
+            grid.innerHTML = coins.map(coin => {
+                const change = coin.price_change_percentage_24h || 0;
+                const isPositive = change >= 0;
+                const sparkline = coin.sparkline_in_7d?.price || [];
+                const sparklineSvg = sparkline.length > 0 ? generateSparkline(sparkline, isPositive) : '';
+                
+                return `
+                    <div class="coin-card" onclick="openDetail('${coin.id}')">
+                        <div class="coin-header">
+                            <div class="coin-info">
+                                <img class="coin-icon" src="${coin.image}" alt="${coin.name}">
+                                <div class="coin-name-wrap">
+                                    <div class="coin-name">${coin.name}</div>
+                                    <div class="coin-symbol">${coin.symbol}</div>
+                                </div>
+                            </div>
+                            <span class="coin-rank">#${coin.market_cap_rank}</span>
+                        </div>
+                        
+                        <div class="coin-price-section">
+                            <span class="coin-price">${formatPrice(coin.current_price)}</span>
+                            <span class="coin-change ${isPositive ? 'positive' : 'negative'}">${isPositive ? '+' : ''}${change.toFixed(2)}%</span>
+                        </div>
+                        
+                        <div class="coin-chart">${sparklineSvg}</div>
+                        
+                        <div class="coin-footer">
+                            <span>
+                                <span class="label">Market Cap</span>
+                                <span class="value">$${formatCompact(coin.market_cap)}</span>
+                            </span>
+                            <span>
+                                <span class="label">Volume (24h)</span>
+                                <span class="value">$${formatCompact(coin.total_volume)}</span>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function generateSparkline(prices, isPositive) {
+            const min = Math.min(...prices);
+            const max = Math.max(...prices);
+            const range = max - min || 1;
+            const width = 260;
+            const height = 60;
+            const padding = 2;
+            
+            const points = prices.map((p, i) => {
+                const x = (i / (prices.length - 1)) * width;
+                const y = height - padding - ((p - min) / range) * (height - padding * 2);
+                return `${x.toFixed(1)},${y.toFixed(1)}`;
+            });
+            
+            const color = isPositive ? '#22c55e' : '#ef4444';
+            const areaPoints = `0,${height} ${points.join(' ')} ${width},${height}`;
+            
+            return `
+                <svg width="100%" height="100%" viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="grad-${isPositive ? 'up' : 'down'}" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
+                            <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    <polygon points="${areaPoints}" fill="url(#grad-${isPositive ? 'up' : 'down'})"/>
+                    <polyline points="${points.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+        }
+        
+        // Detail modal
+        async function openDetail(coinId) {
+            selectedCoinId = coinId;
+            const modal = document.getElementById('detailModal');
+            const coin = allCoins.find(c => c.id === coinId);
+            if (!coin) return;
+            
+            modal.classList.add('visible');
+            document.body.style.overflow = 'hidden';
+            
+            // Populate basic info
+            document.getElementById('modalCoinInfo').innerHTML = `
+                <img src="${coin.image}" alt="${coin.name}">
+                <div>
+                    <h2>${coin.name} <span class="symbol">${coin.symbol.toUpperCase()}</span></h2>
+                </div>
+            `;
+            
+            const change = coin.price_change_percentage_24h || 0;
+            const isPos = change >= 0;
+            document.getElementById('modalPriceRow').innerHTML = `
+                <span class="modal-price">${formatPrice(coin.current_price)}</span>
+                <span class="modal-change ${isPos ? 'positive' : 'negative'}">${isPos ? '+' : ''}${change.toFixed(2)}%</span>
+            `;
+            
+            // Fetch detailed data
+            await loadDetailChart(coinId, currentDays);
+            await loadDetailInfo(coinId);
+        }
+        
+        async function loadDetailChart(coinId, days) {
+            try {
+                const res = await fetch(`${API_BASE}/coins/${coinId}/market_chart?vs_currency=usd&days=${days}`);
+                const data = await res.json();
+                const prices = data.prices.map(p => ({ x: p[0], y: p[1] }));
+                
+                const ctx = document.getElementById('detailChart').getContext('2d');
+                const isUp = prices[prices.length - 1].y >= prices[0].y;
+                const color = isUp ? '#22c55e' : '#ef4444';
+                
+                if (detailChart) detailChart.destroy();
+                
+                detailChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        datasets: [{
+                            data: prices,
+                            borderColor: color,
+                            backgroundColor: (ctx) => {
+                                const grad = ctx.chart.ctx.createLinearGradient(0, 0, 0, 280);
+                                grad.addColorStop(0, isUp ? 'rgba(34,197,94,0.2)' : 'rgba(239,68,68,0.2)');
+                                grad.addColorStop(1, 'rgba(0,0,0,0)');
+                                return grad;
+                            },
+                            fill: true,
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { intersect: false, mode: 'index' },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#111118',
+                                titleColor: '#94a3b8',
+                                bodyColor: '#f1f5f9',
+                                borderColor: 'rgba(255,255,255,0.1)',
+                                borderWidth: 1,
+                                padding: 10,
+                                displayColors: false,
+                                callbacks: {
+                                    title: (items) => new Date(items[0].parsed.x).toLocaleDateString(),
+                                    label: (item) => '$' + item.parsed.y.toLocaleString(undefined, { maximumFractionDigits: 6 })
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: { unit: days <= 1 ? 'hour' : days <= 7 ? 'day' : 'week' },
+                                grid: { color: 'rgba(255,255,255,0.03)' },
+                                ticks: { color: '#64748b', font: { size: 10 } }
+                            },
+                            y: {
+                                grid: { color: 'rgba(255,255,255,0.03)' },
+                                ticks: {
+                                    color: '#64748b',
+                                    font: { size: 10 },
+                                    callback: v => '$' + formatCompact(v)
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Chart failed:', e);
+            }
+        }
+        
+        async function loadDetailInfo(coinId) {
+            try {
+                const res = await fetch(`${API_BASE}/coins/${coinId}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
+                const data = await res.json();
+                const md = data.market_data;
+                
+                document.getElementById('modalStats').innerHTML = `
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">Market Cap</div>
+                        <div class="modal-stat-value">$${formatCompact(md.market_cap?.usd)}</div>
+                        <div class="modal-stat-change ${(md.market_cap_change_percentage_24h_in_currency?.usd || 0) >= 0 ? 'positive' : 'negative'}">${(md.market_cap_change_percentage_24h_in_currency?.usd || 0) >= 0 ? '+' : ''}${(md.market_cap_change_percentage_24h_in_currency?.usd || 0).toFixed(2)}%</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">Volume (24h)</div>
+                        <div class="modal-stat-value">$${formatCompact(md.total_volume?.usd)}</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">Circulating Supply</div>
+                        <div class="modal-stat-value">${formatCompact(md.circulating_supply)} ${data.symbol.toUpperCase()}</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">Max Supply</div>
+                        <div class="modal-stat-value">${md.max_supply ? formatCompact(md.max_supply) + ' ' + data.symbol.toUpperCase() : '∞'}</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">All-Time High</div>
+                        <div class="modal-stat-value">${formatPrice(md.ath?.usd)}</div>
+                        <div class="modal-stat-change negative">${md.ath_change_percentage?.usd?.toFixed(1) || 0}%</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="modal-stat-label">All-Time Low</div>
+                        <div class="modal-stat-value">${formatPrice(md.atl?.usd)}</div>
+                        <div class="modal-stat-change positive">+${md.atl_change_percentage?.usd?.toFixed(1) || 0}%</div>
+                    </div>
+                `;
+                
+                const desc = data.description?.en || '';
+                document.getElementById('modalDesc').innerHTML = desc 
+                    ? `<h3>About ${data.name}</h3><p>${desc.substring(0, 600)}${desc.length > 600 ? '...' : ''}</p>`
+                    : '';
+            } catch (e) {
+                console.error('Detail fetch failed:', e);
+            }
+        }
+        
+        async function changeTimeframe(days) {
+            currentDays = days;
+            document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.time-btn[data-days="${days}"]`).classList.add('active');
+            if (selectedCoinId) await loadDetailChart(selectedCoinId, days);
+        }
+        
+        function closeModal(e) {
+            if (e && e.target !== e.currentTarget) return;
+            document.getElementById('detailModal').classList.remove('visible');
+            document.body.style.overflow = '';
+            if (detailChart) { detailChart.destroy(); detailChart = null; }
+        }
+        
+        function sortCoins(field) {
+            currentSort = field;
+            document.querySelectorAll('.btn-sort').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.btn-sort[data-sort="${field}"]`).classList.add('active');
+            renderCoins();
+        }
+        
+        function filterCoins() {
+            searchTerm = document.getElementById('searchInput').value;
+            renderCoins();
+        }
+        
+        function refreshData() {
+            fetchGlobal();
+            fetchCoins();
+        }
+        
+        // Formatting
+        function formatPrice(price) {
+            if (price === null || price === undefined) return '--';
+            if (price >= 1) return '$' + price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            if (price >= 0.01) return '$' + price.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+            return '$' + price.toLocaleString(undefined, { minimumFractionDigits: 6, maximumFractionDigits: 8 });
+        }
+        
+        function formatCompact(num) {
+            if (num === null || num === undefined) return '--';
+            if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+            return num.toLocaleString();
+        }
+        
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchGlobal();
+            fetchCoins();
+            autoRefresh = setInterval(refreshData, 60000);
+        });
+        
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
+</body>
+</html>

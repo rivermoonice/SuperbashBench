@@ -1,0 +1,328 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - img [ref=e5]
+      - generic [ref=e8]:
+        - heading "SENTINEL" [level=1] [ref=e9]
+        - generic [ref=e10]: Global Command Center
+    - generic [ref=e11]:
+      - generic [ref=e14]: Live Feeds
+      - generic [ref=e15]: 9/9 sources
+      - generic [ref=e16]: 02:47:48 UTC
+      - button "Refresh" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - text: Refresh
+  - generic [ref=e20]:
+    - generic [ref=e479]:
+      - generic [ref=e480]: New York
+      - generic [ref=e481]: 22:47
+      - generic [ref=e482]: Closed
+    - generic [ref=e484]:
+      - generic [ref=e485]: London
+      - generic [ref=e486]: 03:47
+      - generic [ref=e487]: Closed
+    - generic [ref=e489]:
+      - generic [ref=e490]: Frankfurt
+      - generic [ref=e491]: 04:47
+      - generic [ref=e492]: Closed
+    - generic [ref=e494]:
+      - generic [ref=e495]: Tokyo
+      - generic [ref=e496]: 11:47
+      - generic [ref=e497]: Open
+    - generic [ref=e499]:
+      - generic [ref=e500]: Hong Kong
+      - generic [ref=e501]: 10:47
+      - generic [ref=e502]: Open
+    - generic [ref=e504]:
+      - generic [ref=e505]: Sydney
+      - generic [ref=e506]: 12:47
+      - generic [ref=e507]: Open
+  - generic [ref=e52]:
+    - generic [ref=e53]:
+      - generic [ref=e55]:
+        - generic [ref=e56]:
+          - generic [ref=e57]: Global Indices
+          - generic [ref=e59]: equities · futures
+        - generic [ref=e61]:
+          - generic [ref=e63]: S&P 500
+          - generic [ref=e69]: NASDAQ
+          - generic [ref=e75]: Dow Jones
+          - generic [ref=e81]: Russell 2K
+          - generic [ref=e87]: VIX
+          - generic [ref=e93]: FTSE 100
+          - generic [ref=e99]: DAX
+          - generic [ref=e105]: Nikkei 225
+          - generic [ref=e111]: Hang Seng
+      - generic [ref=e117]:
+        - generic [ref=e118]:
+          - generic [ref=e121]: S&P 500 · Intraday
+          - generic [ref=e122]:
+            - button "1D" [ref=e123] [cursor=pointer]
+            - button "5D" [ref=e124] [cursor=pointer]
+            - button "1M" [ref=e125] [cursor=pointer]
+            - button "6M" [ref=e126] [cursor=pointer]
+        - generic [ref=e128]:
+          - generic [ref=e129]: 7,563.63
+          - generic [ref=e130]: +1.76%
+      - generic [ref=e134]:
+        - generic [ref=e135]:
+          - generic [ref=e136]: Market Sentiment
+          - generic [ref=e138]: fear / greed
+        - generic [ref=e140]:
+          - img [ref=e141]
+          - generic [ref=e146]: —
+          - generic [ref=e147]: Calibrating
+      - generic [ref=e149]:
+        - generic [ref=e150]:
+          - generic [ref=e151]: Equities
+          - generic [ref=e153]: mega-cap
+        - generic [ref=e154]:
+          - generic [ref=e156]:
+            - generic [ref=e157]: A
+            - generic [ref=e158]:
+              - generic [ref=e159]: Apple
+              - generic [ref=e160]: AAPL
+          - generic [ref=e164]:
+            - generic [ref=e165]: M
+            - generic [ref=e166]:
+              - generic [ref=e167]: Microsoft
+              - generic [ref=e168]: MSFT
+          - generic [ref=e172]:
+            - generic [ref=e173]: "N"
+            - generic [ref=e174]:
+              - generic [ref=e175]: NVIDIA
+              - generic [ref=e176]: NVDA
+          - generic [ref=e180]:
+            - generic [ref=e181]: G
+            - generic [ref=e182]:
+              - generic [ref=e183]: Alphabet
+              - generic [ref=e184]: GOOGL
+          - generic [ref=e188]:
+            - generic [ref=e189]: A
+            - generic [ref=e190]:
+              - generic [ref=e191]: Amazon
+              - generic [ref=e192]: AMZN
+          - generic [ref=e196]:
+            - generic [ref=e197]: M
+            - generic [ref=e198]:
+              - generic [ref=e199]: Meta
+              - generic [ref=e200]: META
+          - generic [ref=e204]:
+            - generic [ref=e205]: T
+            - generic [ref=e206]:
+              - generic [ref=e207]: Tesla
+              - generic [ref=e208]: TSLA
+          - generic [ref=e212]:
+            - generic [ref=e213]: J
+            - generic [ref=e214]:
+              - generic [ref=e215]: JPMorgan
+              - generic [ref=e216]: JPM
+      - generic [ref=e220]:
+        - generic [ref=e221]:
+          - generic [ref=e222]: Crypto
+          - generic [ref=e224]: 24h
+        - generic [ref=e225]:
+          - generic [ref=e226]:
+            - generic [ref=e229]:
+              - generic [ref=e230]: Bitcoin
+              - generic [ref=e231]: BTC
+            - generic [ref=e232]:
+              - generic [ref=e233]: $73,282
+              - generic [ref=e234]: "-1.23%"
+              - img [ref=e236]
+          - generic [ref=e239]:
+            - generic [ref=e242]:
+              - generic [ref=e243]: Ethereum
+              - generic [ref=e244]: ETH
+            - generic [ref=e245]:
+              - generic [ref=e246]: $1,999
+              - generic [ref=e247]: "-0.83%"
+              - img [ref=e249]
+          - generic [ref=e252]:
+            - generic [ref=e255]:
+              - generic [ref=e256]: XRP
+              - generic [ref=e257]: XRP
+            - generic [ref=e258]:
+              - generic [ref=e259]: $1.3100
+              - generic [ref=e260]: +0.50%
+              - img [ref=e262]
+          - generic [ref=e265]:
+            - generic [ref=e268]:
+              - generic [ref=e269]: Solana
+              - generic [ref=e270]: SOL
+            - generic [ref=e271]:
+              - generic [ref=e272]: $81.68
+              - generic [ref=e273]: "-0.41%"
+              - img [ref=e275]
+      - generic [ref=e279]:
+        - generic [ref=e280]:
+          - generic [ref=e281]: Commodities
+          - generic [ref=e283]: spot
+        - generic [ref=e284]:
+          - generic [ref=e287]: Gold
+          - generic [ref=e292]: Silver
+          - generic [ref=e297]: WTI Crude
+          - generic [ref=e302]: Brent
+          - generic [ref=e307]: Nat Gas
+          - generic [ref=e312]: Copper
+      - generic [ref=e316]:
+        - generic [ref=e317]:
+          - generic [ref=e318]: Foreign Exchange
+          - generic [ref=e320]: vs USD
+        - generic [ref=e321]:
+          - generic [ref=e322]:
+            - generic [ref=e323]:
+              - generic [ref=e324]: EUR
+              - generic [ref=e326]: EUR/USD
+            - generic [ref=e328]: "1.1643"
+          - generic [ref=e330]:
+            - generic [ref=e331]:
+              - generic [ref=e332]: GBP
+              - generic [ref=e334]: GBP/USD
+            - generic [ref=e336]: "1.3433"
+          - generic [ref=e338]:
+            - generic [ref=e339]:
+              - generic [ref=e340]: USD
+              - generic [ref=e342]: USD/JPY
+            - generic [ref=e344]: "159.3093"
+          - generic [ref=e346]:
+            - generic [ref=e347]:
+              - generic [ref=e348]: USD
+              - generic [ref=e350]: USD/CHF
+            - generic [ref=e352]: "0.7853"
+          - generic [ref=e354]:
+            - generic [ref=e355]:
+              - generic [ref=e356]: USD
+              - generic [ref=e358]: USD/CNY
+            - generic [ref=e360]: "6.7919"
+          - generic [ref=e362]:
+            - generic [ref=e363]:
+              - generic [ref=e364]: AUD
+              - generic [ref=e366]: AUD/USD
+            - generic [ref=e368]: "0.7147"
+      - generic [ref=e371]:
+        - generic [ref=e372]:
+          - generic [ref=e373]: Treasury Yields
+          - generic [ref=e375]: U.S.
+        - generic [ref=e376]:
+          - generic [ref=e377]:
+            - generic [ref=e378]: Maturity
+            - generic [ref=e379]: Yield
+          - generic [ref=e380]:
+            - generic [ref=e382]: 3 MO
+            - generic [ref=e385]: 5 YR
+            - generic [ref=e388]: 10 YR
+            - generic [ref=e391]: 30 YR
+      - generic [ref=e396]:
+        - generic [ref=e397]:
+          - generic [ref=e398]: Financial Hubs Weather
+          - generic [ref=e400]: live
+        - generic [ref=e402]:
+          - generic [ref=e509]:
+            - generic [ref=e510]: New York
+            - generic [ref=e511]:
+              - text: 18°
+              - generic [ref=e512]: ☀
+            - generic [ref=e513]: Clear
+            - generic [ref=e514]: 💨 15km/h
+          - generic [ref=e515]:
+            - generic [ref=e516]: London
+            - generic [ref=e517]:
+              - text: 20°
+              - generic [ref=e518]: ☀
+            - generic [ref=e519]: Clear
+            - generic [ref=e520]: 💨 9km/h
+          - generic [ref=e521]:
+            - generic [ref=e522]: Tokyo
+            - generic [ref=e523]:
+              - text: 29°
+              - generic [ref=e524]: ☀
+            - generic [ref=e525]: Clear
+            - generic [ref=e526]: 💨 10km/h
+          - generic [ref=e527]:
+            - generic [ref=e528]: Frankfurt
+            - generic [ref=e529]:
+              - text: 14°
+              - generic [ref=e530]: 🌤
+            - generic [ref=e531]: Mostly Clear
+            - generic [ref=e532]: 💨 3km/h
+          - generic [ref=e533]:
+            - generic [ref=e534]: Hong Kong
+            - generic [ref=e535]:
+              - text: 33°
+              - generic [ref=e536]: ⛈
+            - generic [ref=e537]: Thunderstorm
+            - generic [ref=e538]: 💨 9km/h
+          - generic [ref=e539]:
+            - generic [ref=e540]: Singapore
+            - generic [ref=e541]:
+              - text: 28°
+              - generic [ref=e542]: ☁
+            - generic [ref=e543]: Overcast
+            - generic [ref=e544]: 💨 7km/h
+      - generic [ref=e440]:
+        - generic [ref=e441]:
+          - generic [ref=e442]: Tech Intelligence Feed
+          - generic [ref=e444]: hacker news · top
+        - generic [ref=e445]:
+          - generic [ref=e545]:
+            - generic [ref=e546]: "01"
+            - generic [ref=e547]:
+              - link "Claude Opus 4.8" [ref=e548] [cursor=pointer]:
+                - /url: https://www.anthropic.com/news/claude-opus-4-8
+              - generic [ref=e549]: ▲1266 · 1024 comments · 9h ago · anthropic.com
+          - generic [ref=e550]:
+            - generic [ref=e551]: "02"
+            - generic [ref=e552]:
+              - link "Bricks and Minifigs Stole a Man's $200k Lego Collection" [ref=e553] [cursor=pointer]:
+                - /url: https://mybricklog.com/blog/bricks-minifigs-corporate-stole-old-mans-200000-lego-collection
+              - generic [ref=e554]: ▲654 · 358 comments · 7h ago · mybricklog.com
+          - generic [ref=e555]:
+            - generic [ref=e556]: "03"
+            - generic [ref=e557]:
+              - link "Where are the economies of scale in homebuilding?" [ref=e558] [cursor=pointer]:
+                - /url: https://www.construction-physics.com/p/where-are-the-economies-of-scale
+              - generic [ref=e559]: ▲42 · 31 comments · 2h ago · construction-physics.com
+          - generic [ref=e560]:
+            - generic [ref=e561]: "04"
+            - generic [ref=e562]:
+              - link "I made a million dollar product from my dorm room (2025)" [ref=e563] [cursor=pointer]:
+                - /url: https://nick.winans.io/blog/nice-nano/
+              - generic [ref=e564]: ▲215 · 29 comments · 6h ago · nick.winans.io
+          - generic [ref=e565]:
+            - generic [ref=e566]: "05"
+            - generic [ref=e567]:
+              - link "Ten Basic Clouds" [ref=e568] [cursor=pointer]:
+                - /url: https://www.noaa.gov/jetstream/clouds/ten-basic-clouds
+              - generic [ref=e569]: ▲51 · 16 comments · 4d ago · noaa.gov
+          - generic [ref=e570]:
+            - generic [ref=e571]: "06"
+            - generic [ref=e572]:
+              - link "Blue Origin's New Glenn blows up during static fire test" [ref=e573] [cursor=pointer]:
+                - /url: https://twitter.com/nasaspaceflight/status/2060164928472854821
+              - generic [ref=e574]: ▲73 · 17 comments · 1h ago · twitter.com
+          - generic [ref=e575]:
+            - generic [ref=e576]: "07"
+            - generic [ref=e577]:
+              - 'link "Nitpicking the shell history scene in ''Tron: Legacy''" [ref=e578] [cursor=pointer]':
+                - /url: https://www.chiark.greenend.org.uk/~sgtatham/quasiblog/tron-legacy/
+              - generic [ref=e579]: ▲166 · 65 comments · 7h ago · chiark.greenend.org.uk
+          - generic [ref=e580]:
+            - generic [ref=e581]: "08"
+            - generic [ref=e582]:
+              - link "Garnix (A Nix CI) is shutting down" [ref=e583] [cursor=pointer]:
+                - /url: https://discourse.nixos.org/t/garnix-is-shutting-down-not-oc/77895
+              - generic [ref=e584]: ▲34 · 15 comments · 3h ago · discourse.nixos.org
+          - generic [ref=e585]:
+            - generic [ref=e586]: "09"
+            - generic [ref=e587]:
+              - link "I hated writing until I learned there’s a science to it (2024)" [ref=e588] [cursor=pointer]:
+                - /url: https://www.science.org/content/article/i-hated-writing-until-i-learned-there-s-science-it
+              - generic [ref=e589]: ▲153 · 67 comments · 9h ago · science.org
+          - generic [ref=e590]:
+            - generic [ref=e591]: "10"
+            - generic [ref=e592]:
+              - link "News about Raspberry Pi 6 and Microcontroller Development" [ref=e593] [cursor=pointer]:
+                - /url: https://www.jeffgeerling.com/blog/2026/news-about-raspberry-pi-6-and-microcontroller-development/
+              - generic [ref=e594]: ▲157 · 121 comments · 2d ago · jeffgeerling.com
+    - contentinfo [ref=e478]: SENTINEL // Built with public open APIs — CoinGecko · Open-Meteo · exchangerate · Hacker News · Yahoo Finance · auto-refresh 90s · last sync —

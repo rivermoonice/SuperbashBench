@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Prompts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        :root {
+            --bg: #030305;
+            --surface: #0a0a0f;
+            --card: #111118;
+            --card-hover: #181822;
+            --border: rgba(255,255,255,0.06);
+            --border-hover: rgba(255,255,255,0.12);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --accent: #ec4899;
+            --accent-cyan: #22d3ee;
+            --green: #22c55e;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            background: rgba(10,10,15,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .header-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            border-radius: 8px;
+        }
+
+        .header a.back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .header a.back-link:hover {
+            color: var(--text);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 4rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--text) 0%, var(--primary-light) 50%, var(--accent-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .prompt-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .prompt-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .prompt-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.3);
+        }
+
+        .prompt-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+        }
+
+        .prompt-emoji {
+            font-size: 1.75rem;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--surface);
+            border-radius: 12px;
+        }
+
+        .prompt-title-wrap {
+            flex: 1;
+        }
+
+        .prompt-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .prompt-meta {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 0.15rem;
+        }
+
+        .prompt-links {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .prompt-link {
+            color: var(--primary-light);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.4rem 0.875rem;
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 8px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .prompt-link:hover {
+            background: rgba(99,102,241,0.1);
+            border-color: var(--primary-light);
+        }
+
+        .prompt-link.opus {
+            color: var(--accent-cyan);
+            border-color: rgba(34,211,238,0.25);
+        }
+
+        .prompt-link.opus:hover {
+            background: rgba(34,211,238,0.1);
+            border-color: var(--accent-cyan);
+        }
+
+        .prompt-body {
+            padding: 1.25rem 1.5rem;
+        }
+
+        .prompt-body p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        .prompt-body ul {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            padding-left: 1.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .prompt-body li {
+            margin-bottom: 0.25rem;
+        }
+
+        .prompt-body strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 600px) {
+            .page-title { font-size: 1.75rem; }
+            .container { padding: 2rem 1rem; }
+            .prompt-header { flex-wrap: wrap; gap: 0.75rem; }
+            .prompt-link { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="/" class="header-brand">
+            <div class="header-logo"></div>
+            <span>Model Showcase</span>
+        </a>
+        <a href="/" class="back-link">← Back to Showcase</a>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Project Prompts</h1>
+        <p class="page-subtitle">The exact prompts behind each project. Every prompt was handed to both <strong style="color:var(--primary-light)">Kimi K2.6</strong> and <strong style="color:var(--accent-cyan)">Claude Opus 4.8</strong> — open either build to compare.</p>
+
+        <div class="prompt-list">
+            
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <span class="prompt-emoji">🏯</span>
+                    <div class="prompt-title-wrap">
+                        <div class="prompt-title">Yingzao Fashi</div>
+                        <div class="prompt-meta">3D Architecture Visualization · Single HTML · Three.js</div>
+                    </div>
+                    <div class="prompt-links">
+                        <a href="../yingzao-fashi/" class="prompt-link">Kimi K2.6 →</a>
+                        <a href="../opus-4-8/yingzao-fashi/" class="prompt-link opus">Opus 4.8 →</a>
+                    </div>
+                </div>
+                <div class="prompt-body">
+                    <p>Generate a "Yingzao Fashi" (Building Standards) disassembly animation based on a photo of an ancient building. The user uploads a photo of a Chinese ancient building (such as the Yingxian Wooden Pagoda or the Main Hall of Foguang Temple). The model needs to:</p>
+                    <ul>
+                        <li>Identify the building type and major structural components (dougong/bracket sets, columns, beams, fang/tie-beams, purlins, rafters)</li>
+                        <li>Generate a simple Three.js 3D model, demonstrating the assembly process in the actual traditional construction order (first erect the columns, then place the beams, then install the dougong brackets, and finally put on the roof)</li>
+                        <li>Each component should display its name and function as a floating/hover label</li>
+                        <li>Be able to use a slider to control "age erosion," observing the process of wood weathering and paint peeling off</li>
+                        <li>Support toggling a "structural X-ray/transparent" mode, hiding the exterior walls to view the internal mortise-and-tenon joints</li>
+                    </ul>
+                    <p><strong>Output: a single HTML file.</strong></p>
+                </div>
+            </div>
+
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <span class="prompt-emoji">🚀</span>
+                    <div class="prompt-title-wrap">
+                        <div class="prompt-title">Neon Drift</div>
+                        <div class="prompt-meta">Space Shooter · Canvas 2D · Particle Physics</div>
+                    </div>
+                    <div class="prompt-links">
+                        <a href="../space-shooter/" class="prompt-link">Kimi K2.6 →</a>
+                        <a href="../opus-4-8/space-shooter/" class="prompt-link opus">Opus 4.8 →</a>
+                    </div>
+                </div>
+                <div class="prompt-body">
+                    <p>make a a small minigame similar to some space shooter but make it look futuristic have lots of physics effects and make it look flashy</p>
+                </div>
+            </div>
+
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <span class="prompt-emoji">🧊</span>
+                    <div class="prompt-title-wrap">
+                        <div class="prompt-title">Voxel World</div>
+                        <div class="prompt-meta">3D Sandbox · Procedural Generation · Crafting</div>
+                    </div>
+                    <div class="prompt-links">
+                        <a href="../voxel-world/" class="prompt-link">Kimi K2.6 →</a>
+                        <a href="../opus-4-8/voxel-world/" class="prompt-link opus">Opus 4.8 →</a>
+                    </div>
+                </div>
+                <div class="prompt-body">
+                    <p>Make a small 3d mini game where i can walk around link minecraft where the world is procedurally generated and there is a basic crafting system</p>
+                </div>
+            </div>
+
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <span class="prompt-emoji">📋</span>
+                    <div class="prompt-title-wrap">
+                        <div class="prompt-title">Kanban Board</div>
+                        <div class="prompt-meta">Project Management · Drag & Drop · localStorage</div>
+                    </div>
+                    <div class="prompt-links">
+                        <a href="../kanban/" class="prompt-link">Kimi K2.6 →</a>
+                        <a href="../opus-4-8/kanban/" class="prompt-link opus">Opus 4.8 →</a>
+                    </div>
+                </div>
+                <div class="prompt-body">
+                    <p>make a working kanban system to track project development and make it look nice, clean and professional</p>
+                </div>
+            </div>
+
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <span class="prompt-emoji">₿</span>
+                    <div class="prompt-title-wrap">
+                        <div class="prompt-title">Crypto Intelligence</div>
+                        <div class="prompt-meta">Live Data Dashboard · CoinGecko API · Chart.js</div>
+                    </div>
+                    <div class="prompt-links">
+                        <a href="../crypto-dashboard/" class="prompt-link">Kimi K2.6 →</a>
+                        <a href="../opus-4-8/crypto-dashboard/" class="prompt-link opus">Opus 4.8 →</a>
+                    </div>
+                </div>
+                <div class="prompt-body">
+                    <p>make an intelligence dashboard for crypto- use as many publicly available data sources as possible - make it so i can click into each coin and see the prices and price data.</p>
+                </div>
+            </div>
+
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <span class="prompt-emoji">🌐</span>
+                    <div class="prompt-title-wrap">
+                        <div class="prompt-title">World Monitor</div>
+                        <div class="prompt-meta">Intelligence Dashboard · Live APIs · Chart.js</div>
+                    </div>
+                    <div class="prompt-links">
+                        <a href="../world-monitor/" class="prompt-link">Kimi K2.6 →</a>
+                        <a href="../opus-4-8/world-monitor/" class="prompt-link opus">Opus 4.8 →</a>
+                    </div>
+                </div>
+                <div class="prompt-body">
+                    <p>make a world monitor dashboard - get live data for stocks and world intelligence and make me a super dashboard for this information</p>
+                </div>
+            </div>
+
+            <div class="prompt-card">
+                <div class="prompt-header">
+                    <span class="prompt-emoji">🐦</span>
+                    <div class="prompt-title-wrap">
+                        <div class="prompt-title">Pelican on a Bicycle</div>
+                        <div class="prompt-meta">SVG Illustration · Vector Art · CSS Animation</div>
+                    </div>
+                    <div class="prompt-links">
+                        <a href="../pelican-bicycle/" class="prompt-link">Kimi K2.6 →</a>
+                        <a href="../opus-4-8/pelican-bicycle/" class="prompt-link opus">Opus 4.8 →</a>
+                    </div>
+                </div>
+                <div class="prompt-body">
+                    <p>Generate an SVG of a pelican riding a bicycle and add it to a project and add it to the prompt page too.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="footer">
+        Built with <a href="https://www.kimi.com" style="color: var(--primary-light); text-decoration: none;">Kimi K2.6</a>
+    </footer>
+</body>
+</html>

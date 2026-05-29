@@ -1,0 +1,8 @@
+- generic [ref=e3]:
+  - generic [ref=e4]: HYPERLANCE
+  - generic [ref=e5]: SYNTHWAVE COMBAT ARENA
+  - button "ENGAGE" [ref=e6] [cursor=pointer]
+  - generic [ref=e7]:
+    - text: WASD / ARROWS thrust · MOUSE aim
+    - text: HOLD LMB blaster · RELEASE charged shot · RMB / SPACE pulse blast
+    - text: SHIFT overdrive boost · mind your HEAT

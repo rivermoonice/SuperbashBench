@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>營造法式 · Yingzao Fashi — Timber Hall Disassembly</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<style>
+  :root{
+    --bg:#07060f;
+    --ink:#ece9ff;
+    --muted:#8a86b8;
+    --faint:#5c5882;
+    --indigo:#6366f1;
+    --purple:#a855f7;
+    --pink:#ec4899;
+    --gold:#f2c879;
+    --panel:rgba(18,16,34,.78);
+    --line:rgba(140,120,255,.16);
+    --grad:linear-gradient(120deg,#6366f1,#a855f7 55%,#ec4899);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  #stage{position:fixed;inset:0;z-index:0}
+  canvas{display:block}
+
+  /* ambient glow blobs behind everything */
+  .glow{position:fixed;border-radius:50%;filter:blur(90px);opacity:.5;z-index:0;pointer-events:none}
+  .glow.a{width:520px;height:520px;background:#3b2d8f;top:-180px;left:-120px}
+  .glow.b{width:460px;height:460px;background:#7a1f63;bottom:-160px;right:-120px}
+
+  /* ---------- left control rail ---------- */
+  .panel{
+    position:fixed;top:18px;left:18px;width:330px;z-index:10;
+    background:var(--panel);
+    backdrop-filter:blur(18px) saturate(140%);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:20px 20px 16px;
+    max-height:calc(100vh - 36px);
+    overflow-y:auto;
+    box-shadow:0 24px 60px rgba(0,0,0,.5);
+  }
+  .panel::-webkit-scrollbar{width:6px}
+  .panel::-webkit-scrollbar-thumb{background:rgba(140,120,255,.3);border-radius:3px}
+
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:4px}
+  .seal{
+    width:42px;height:42px;border-radius:12px;flex:none;
+    display:grid;place-items:center;
+    background:var(--grad);
+    font-size:20px;font-weight:700;color:#fff;
+    box-shadow:0 8px 22px rgba(124,58,237,.45);
+  }
+  .brand h1{font-size:20px;letter-spacing:.5px;line-height:1.05}
+  .brand .en{font-size:10.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+  .ident{
+    margin:14px 0 16px;padding:11px 13px;border-radius:13px;
+    background:linear-gradient(135deg,rgba(99,102,241,.14),rgba(236,72,153,.10));
+    border:1px solid var(--line);
+    font-size:12px;line-height:1.5;
+  }
+  .ident .k{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1.4px}
+  .ident .v{color:var(--ink);font-weight:600}
+  .ident .tag{
+    display:inline-block;margin-top:6px;margin-right:5px;padding:2px 8px;border-radius:20px;
+    font-size:10px;background:rgba(168,85,247,.18);color:#d6b9ff;border:1px solid rgba(168,85,247,.3)
+  }
+
+  /* upload */
+  .drop{
+    border:1.5px dashed rgba(140,120,255,.32);
+    border-radius:14px;padding:16px;text-align:center;cursor:pointer;
+    transition:.25s;margin-bottom:18px;
+  }
+  .drop:hover,.drop.hot{border-color:var(--pink);background:rgba(236,72,153,.07)}
+  .drop input{display:none}
+  .drop .ic{font-size:22px;display:block;margin-bottom:6px}
+  .drop .t{font-size:12.5px;color:var(--muted)}
+  .drop .t b{color:#c9b8ff}
+
+  .group{margin-bottom:16px}
+  .group>label{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:11px;text-transform:uppercase;letter-spacing:1.3px;
+    color:var(--muted);margin-bottom:9px;font-weight:600;
+  }
+  .group>label .num{color:var(--gold);font-variant-numeric:tabular-nums}
+
+  input[type=range]{
+    -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;
+    background:rgba(255,255,255,.08);outline:none;cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;
+    background:#fff;border:3px solid var(--purple);cursor:pointer;
+    box-shadow:0 0 0 4px rgba(168,85,247,.2),0 2px 8px rgba(0,0,0,.5);
+  }
+  input[type=range].pink::-webkit-slider-thumb{border-color:var(--pink);box-shadow:0 0 0 4px rgba(236,72,153,.2),0 2px 8px rgba(0,0,0,.5)}
+  input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--purple)}
+
+  .btns{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+  .btn{
+    padding:11px 8px;border:1px solid var(--line);border-radius:12px;
+    background:rgba(255,255,255,.04);color:var(--ink);font-size:12px;font-weight:600;
+    cursor:pointer;transition:.2s;display:flex;flex-direction:column;align-items:center;gap:3px;
+  }
+  .btn .sub{font-size:9.5px;color:var(--faint);font-weight:500}
+  .btn:hover{border-color:rgba(168,85,247,.5);background:rgba(168,85,247,.08)}
+  .btn.on{background:var(--grad);border-color:transparent;box-shadow:0 8px 20px rgba(124,58,237,.4)}
+  .btn.on .sub{color:rgba(255,255,255,.8)}
+  .btn.wide{grid-column:1/-1}
+
+  /* sequence */
+  .seq{margin-top:4px}
+  .seq h3,.legend h3{
+    font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:var(--muted);
+    margin-bottom:11px;font-weight:600;
+  }
+  .step{display:flex;align-items:center;gap:10px;margin-bottom:7px;font-size:12.5px;color:var(--faint);transition:.25s}
+  .step .dot{
+    width:22px;height:22px;border-radius:50%;flex:none;display:grid;place-items:center;
+    font-size:11px;font-weight:700;background:rgba(255,255,255,.06);color:var(--faint);
+    border:1px solid var(--line);transition:.25s;
+  }
+  .step.done{color:var(--ink)}
+  .step.done .dot{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 0 12px rgba(168,85,247,.5)}
+  .step .zh{color:var(--gold);font-size:11px;margin-left:auto}
+
+  .legend{margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+  .legend-item{display:flex;align-items:center;gap:9px;margin-bottom:7px;font-size:12px;color:var(--muted)}
+  .legend-item:hover{color:var(--ink)}
+  .sw{width:14px;height:14px;border-radius:4px;flex:none}
+
+  /* tooltip */
+  .tip{
+    position:fixed;z-index:50;pointer-events:none;opacity:0;transform:translateY(6px);
+    transition:opacity .16s,transform .16s;max-width:260px;
+    background:var(--panel);backdrop-filter:blur(16px);
+    border:1px solid rgba(168,85,247,.4);border-radius:14px;padding:13px 15px;
+    box-shadow:0 18px 44px rgba(0,0,0,.55);
+  }
+  .tip.show{opacity:1;transform:translateY(0)}
+  .tip .zh{font-size:16px;font-weight:700;color:var(--ink);line-height:1.1}
+  .tip .pin{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin:2px 0 7px;font-weight:700}
+  .tip .role{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+  .tip p{font-size:12px;line-height:1.5;color:var(--muted)}
+
+  /* hint bar */
+  .hint{
+    position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:10;
+    display:flex;gap:18px;font-size:11.5px;color:var(--faint);
+    background:var(--panel);backdrop-filter:blur(14px);border:1px solid var(--line);
+    border-radius:30px;padding:9px 20px;box-shadow:0 12px 30px rgba(0,0,0,.4);
+  }
+  .hint b{color:#c9b8ff;font-weight:600}
+
+  /* phase banner */
+  .phase{
+    position:fixed;top:18px;right:18px;z-index:10;text-align:right;
+  }
+  .phase .lbl{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .phase .now{
+    font-size:22px;font-weight:700;line-height:1.1;
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .phase .zh{font-size:13px;color:var(--gold);margin-top:2px}
+
+  @media(max-width:560px){
+    .panel{width:calc(100vw - 28px)}
+    .phase{display:none}
+    .hint{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="glow a"></div>
+<div class="glow b"></div>
+<div id="stage"></div>
+
+<div class="panel">
+  <div class="brand">
+    <div class="seal">營</div>
+    <div>
+      <h1>營造法式</h1>
+      <div class="en">Yingzao Fashi · Disassembly</div>
+    </div>
+  </div>
+
+  <div class="ident" id="ident">
+    <div class="k">Identified structure</div>
+    <div class="v" id="identName">Tang-style single-eave hall</div>
+    <div id="identTags">
+      <span class="tag">殿堂 diàn­táng</span>
+      <span class="tag">柱·梁·斗栱</span>
+      <span class="tag">廡殿頂 hip roof</span>
+    </div>
+  </div>
+
+  <label class="drop" id="drop">
+    <input type="file" id="file" accept="image/*">
+    <span class="ic">⬆</span>
+    <span class="t"><b>Upload</b> a photo of an ancient building<br>e.g. Foguang Temple · Yingxian Pagoda</span>
+  </label>
+
+  <div class="group">
+    <label>Assembly Progress <span class="num" id="vAsm">100%</span></label>
+    <input type="range" id="asm" min="0" max="100" value="100">
+  </div>
+
+  <div class="group">
+    <label>Age &amp; Weathering <span class="num" id="vWea">0 yr</span></label>
+    <input type="range" id="wea" class="pink" min="0" max="100" value="0">
+  </div>
+
+  <div class="btns">
+    <button class="btn" id="bXray"><span>X-Ray</span><span class="sub">view tenon joints</span></button>
+    <button class="btn" id="bRot"><span>Auto-Rotate</span><span class="sub">orbit camera</span></button>
+    <button class="btn wide" id="bExp"><span>Exploded View</span><span class="sub">separate every member</span></button>
+  </div>
+
+  <div class="seq">
+    <h3>Construction Sequence</h3>
+    <div class="step" data-s="1"><span class="dot">1</span>Stone bases &amp; columns<span class="zh">立柱</span></div>
+    <div class="step" data-s="2"><span class="dot">2</span>Tie-beams &amp; architraves<span class="zh">額枋</span></div>
+    <div class="step" data-s="3"><span class="dot">3</span>Dougong bracket sets<span class="zh">斗栱</span></div>
+    <div class="step" data-s="4"><span class="dot">4</span>Beams, purlins &amp; rafters<span class="zh">梁桁椽</span></div>
+    <div class="step" data-s="5"><span class="dot">5</span>Roof tiles &amp; ridge<span class="zh">瓦作</span></div>
+  </div>
+
+  <div class="legend">
+    <h3>Components</h3>
+    <div class="legend-item"><span class="sw" style="background:#b5742f"></span>Columns 柱 (zhù)</div>
+    <div class="legend-item"><span class="sw" style="background:#8a4f24"></span>Architraves &amp; tie-beams 枋</div>
+    <div class="legend-item"><span class="sw" style="background:#d99a4e"></span>Dougong brackets 斗栱</div>
+    <div class="legend-item"><span class="sw" style="background:#9a5a2c"></span>Beams 梁 (liáng)</div>
+    <div class="legend-item"><span class="sw" style="background:#c98a4a"></span>Purlins &amp; rafters 桁椽</div>
+    <div class="legend-item"><span class="sw" style="background:#3a3550"></span>Roof tiles 瓦 (wǎ)</div>
+  </div>
+</div>
+
+<div class="phase">
+  <div class="lbl">Current phase</div>
+  <div class="now" id="phaseNow">Complete</div>
+  <div class="zh" id="phaseZh">落成</div>
+</div>
+
+<div class="tip" id="tip">
+  <div class="zh" id="tZh"></div>
+  <div class="pin" id="tPin"></div>
+  <div class="role" id="tRole"></div>
+  <p id="tDesc"></p>
+</div>
+
+<div class="hint">
+  <span><b>Drag</b> rotate</span>
+  <span><b>Scroll</b> zoom</span>
+  <span><b>Hover</b> a member</span>
+</div>
+
+<script>
+/* ============================================================
+   Component metadata (name + function as hover label)
+   ============================================================ */
+const META = {
+  base   : {zh:"柱礎", pin:"Zhǔchǔ",  role:"Foundation",  order:0, desc:"Carved stone plinth under each column. Lifts timber clear of ground damp and distributes the load into the earth."},
+  column : {zh:"柱",   pin:"Zhù",      role:"Vertical support", order:1, desc:"Load-bearing post. A slight taper and outward lean (側腳, cèjiǎo) lock the frame together and steady it against wind."},
+  fang   : {zh:"額枋", pin:"Éfāng",    role:"Tie-beam",    order:2, desc:"Horizontal architrave tenoned through the column heads, tying the colonnade into a rigid ring."},
+  dougong: {zh:"斗栱", pin:"Dǒugǒng",  role:"Bracket set",  order:3, desc:"Interlocking blocks (斗 dǒu) and arms (栱 gǒng). Cantilevers the eaves outward and absorbs seismic motion with no nails."},
+  beam   : {zh:"梁",   pin:"Liáng",    role:"Roof beam",    order:4, desc:"Stacked transverse beams (梁架) carry the purlins. Each tier steps inward, raising the roof's curved profile."},
+  purlin : {zh:"桁/槫", pin:"Héng",     role:"Purlin",      order:4, desc:"Longitudinal timbers spanning the beam frames; the rafters rest directly upon them along the slope."},
+  rafter : {zh:"椽",   pin:"Chuán",    role:"Rafter",      order:4, desc:"Closely spaced sloping members forming the roof deck and the upward-flaring eave curve (飛椽)."},
+  roof   : {zh:"瓦作", pin:"Wǎzuò",    role:"Roof skin",    order:5, desc:"Curved clay tiles and the ridge. Sheds rain, shades the timber, and crowns the hall with its sweeping silhouette."}
+};
+
+const PHASES = [
+  {now:"Bare site",  zh:"平基"},
+  {now:"Columns",    zh:"立柱"},
+  {now:"Tie-beams",  zh:"額枋"},
+  {now:"Dougong",    zh:"斗栱"},
+  {now:"Roof frame", zh:"梁桁椽"},
+  {now:"Complete",   zh:"落成"}
+];
+
+/* ============================================================
+   Scene
+   ============================================================ */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x07060f);
+scene.fog = new THREE.Fog(0x07060f, 34, 96);
+
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.1, 1000);
+camera.position.set(26, 19, 28);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.getElementById('stage').appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+controls.minDistance = 14;
+controls.maxDistance = 70;
+controls.maxPolarAngle = Math.PI/2 - 0.04;
+controls.target.set(0, 6, 0);
+controls.autoRotateSpeed = 0.9;
+
+/* lighting — warm key + indigo/pink rims for the brand mood */
+scene.add(new THREE.HemisphereLight(0x9a8cff, 0x100b1f, 0.55));
+const key = new THREE.DirectionalLight(0xfff1d8, 1.15);
+key.position.set(24, 34, 16);
+key.castShadow = true;
+key.shadow.mapSize.set(2048,2048);
+key.shadow.camera.near=1; key.shadow.camera.far=120;
+key.shadow.camera.left=-36; key.shadow.camera.right=36;
+key.shadow.camera.top=36; key.shadow.camera.bottom=-36;
+key.shadow.bias=-0.0004;
+scene.add(key);
+const rimP = new THREE.DirectionalLight(0xa855f7, 0.7); rimP.position.set(-26, 14, -18); scene.add(rimP);
+const rimK = new THREE.DirectionalLight(0xec4899, 0.45); rimK.position.set(18, 8, -26); scene.add(rimK);
+
+/* ground */
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(60, 64),
+  new THREE.MeshStandardMaterial({color:0x0d0a1c, roughness:1, metalness:0})
+);
+ground.rotation.x = -Math.PI/2; ground.position.y = -0.02; ground.receiveShadow = true;
+scene.add(ground);
+const grid = new THREE.GridHelper(80, 40, 0x2a2350, 0x16122b);
+grid.position.y = 0; grid.material.opacity = 0.5; grid.material.transparent = true;
+scene.add(grid);
+
+/* ============================================================
+   Materials  (base + cached weathered variants)
+   ============================================================ */
+function mat(hex, rough){ return new THREE.MeshStandardMaterial({color:hex, roughness:rough, metalness:0.05}); }
+const BASE = {
+  base    : mat(0x7d7790, 0.95),
+  column  : mat(0xb5742f, 0.72),
+  fang    : mat(0x8a4f24, 0.78),
+  dougong : mat(0xd99a4e, 0.62),
+  beam    : mat(0x9a5a2c, 0.74),
+  purlin  : mat(0xc98a4a, 0.7),
+  rafter  : mat(0xb87a3c, 0.72),
+  roof    : mat(0x3a3550, 0.55),
+};
+const PAINT_RED  = mat(0x9c2424, 0.55);
+const PAINT_GOLD = new THREE.MeshStandardMaterial({color:0xe0b14a, roughness:0.4, metalness:0.35});
+const XRAY = new THREE.MeshStandardMaterial({color:0x9ec2ff, transparent:true, opacity:0.07, roughness:0.4, depthWrite:false});
+const JOINT = new THREE.MeshStandardMaterial({color:0xec4899, emissive:0x551133, roughness:0.5, transparent:true, opacity:0});
+
+const weatherCache = {};
+function weathered(base, t){
+  // t in 0..1 ; bleach toward grey, raise roughness (paint peel + UV greying)
+  const key = base.uuid + '|' + Math.round(t*20);
+  if(weatherCache[key]) return weatherCache[key];
+  const m = base.clone();
+  const g = t*0.55;
+  m.color.setRGB(
+    base.color.r*(1-g) + 0.42*g,
+    base.color.g*(1-g) + 0.40*g,
+    base.color.b*(1-g) + 0.36*g
+  );
+  m.roughness = Math.min(1, base.roughness + t*0.35);
+  weatherCache[key] = m;
+  return m;
+}
+
+/* ============================================================
+   Build the hall
+   ============================================================ */
+const building = new THREE.Group();
+scene.add(building);
+const parts = [];     // hoverable / animatable meshes
+const joints = [];    // glowing tenon markers (xray only)
+
+function add(mesh, type, opts={}){
+  mesh.castShadow = true; mesh.receiveShadow = true;
+  mesh.userData = {
+    type,
+    matKind: opts.matKind || type,
+    home: mesh.position.clone(),
+    paint: !!opts.paint,           // painted member: bleaches/peels with age
+    xrayHide: opts.xrayHide !== false && ['roof'].includes(type) ? true : !!opts.xrayHide
+  };
+  parts.push(mesh);
+  building.add(mesh);
+  return mesh;
+}
+
+// column grid: 5 bays wide (x), 3 deep (z)
+const XS = [-9,-4.5,0,4.5,9];
+const ZS = [-6,0,6];
+const COL_H = 8;
+const PLAT_Y = 0.5;
+
+function buildPlatform(){
+  const p = new THREE.Mesh(new THREE.BoxGeometry(26, 1, 18), BASE.base);
+  p.position.set(0, PLAT_Y/2, 0);
+  add(p, 'base', {xrayHide:false});
+  // step
+  const s = new THREE.Mesh(new THREE.BoxGeometry(28, 0.4, 20), BASE.base);
+  s.position.set(0, 0.2, 0);
+  add(s, 'base', {xrayHide:false});
+}
+
+function buildColumns(){
+  XS.forEach((x,ix)=> ZS.forEach((z,iz)=>{
+    // stone plinth
+    const pl = new THREE.Mesh(new THREE.CylinderGeometry(0.55,0.62,0.5,18), BASE.base);
+    pl.position.set(x, PLAT_Y+0.25, z);
+    add(pl, 'base', {xrayHide:false});
+    // tapered column with slight inward lean (cejiao)
+    const col = new THREE.Mesh(new THREE.CylinderGeometry(0.34,0.42,COL_H,20), BASE.column.clone(), );
+    col.position.set(x, PLAT_Y+0.5+COL_H/2, z);
+    const lean = 0.04;
+    col.rotation.z = -Math.sign(x)*lean*Math.abs(x)/9;
+    col.rotation.x =  Math.sign(z)*lean*Math.abs(z)/6;
+    add(col, 'column', {paint:true});
+    // lacquer cap ring
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.46,0.46,0.4,20), PAINT_RED.clone());
+    cap.position.set(x, PLAT_Y+0.5+COL_H+0.2, z);
+    add(cap, 'column', {paint:true, matKind:'paintRed'});
+  }));
+}
+
+const TOP = PLAT_Y+0.5+COL_H+0.4;  // top of columns/caps
+
+function buildFang(){
+  // architraves along x (front/back rows) between adjacent columns
+  ZS.forEach(z=>{
+    for(let i=0;i<XS.length-1;i++){
+      const a=XS[i], b=XS[i+1];
+      const f = new THREE.Mesh(new THREE.BoxGeometry(b-a, 0.7, 0.42), BASE.fang.clone());
+      f.position.set((a+b)/2, TOP-0.6, z);
+      add(f, 'fang', {paint:true});
+    }
+    // lower tie (pillar tie) for stability look
+    const lt = new THREE.Mesh(new THREE.BoxGeometry(XS[XS.length-1]-XS[0], 0.32, 0.3), BASE.fang.clone());
+    lt.position.set(0, PLAT_Y+0.5+COL_H*0.45, z);
+    add(lt, 'fang', {paint:true});
+  });
+  // architraves along z (side rows)
+  XS.forEach(x=>{
+    for(let i=0;i<ZS.length-1;i++){
+      const a=ZS[i], b=ZS[i+1];
+      const f = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.7, b-a), BASE.fang.clone());
+      f.position.set(x, TOP-0.6, (a+b)/2);
+      add(f, 'fang', {paint:true});
+    }
+  });
+}
+
+function buildDougong(){
+  // a bracket set on each column head + intermediate sets along front/back
+  const setPositions = [];
+  XS.forEach(x=>ZS.forEach(z=> setPositions.push([x,z])));
+  // intermediate (補間) sets on the two long facades
+  [-6,6].forEach(z=>{ for(let i=0;i<XS.length-1;i++) setPositions.push([(XS[i]+XS[i+1])/2, z]); });
+
+  setPositions.forEach(([x,z])=>{
+    const g = new THREE.Group();
+    g.position.set(x, TOP+0.1, z);
+    // big bottom block 櫨斗
+    const ld = new THREE.Mesh(new THREE.BoxGeometry(1.0,0.4,1.0), BASE.dougong.clone());
+    ld.position.y = 0.2; g.add(ld);
+    // tiers of crossing arms + small blocks
+    for(let t=0;t<3;t++){
+      const y = 0.5 + t*0.42;
+      const span = 1.3 + t*0.55;
+      const ax = new THREE.Mesh(new THREE.BoxGeometry(span,0.22,0.26), BASE.dougong.clone());
+      ax.position.y=y; g.add(ax);
+      const az = new THREE.Mesh(new THREE.BoxGeometry(0.26,0.22,span), BASE.dougong.clone());
+      az.position.y=y+0.01; g.add(az);
+      // corner blocks 散斗
+      [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>{
+        const sd = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.22,0.3), BASE.dougong.clone());
+        sd.position.set(sx*span/2*0.9, y+0.18, sz*span/2*0.9); g.add(sd);
+      });
+    }
+    // make every child individually registered for hover/animation by wrapping
+    g.children.forEach(ch=>{
+      ch.castShadow=true; ch.receiveShadow=true;
+      ch.userData={type:'dougong', matKind:'dougong', paint:false, home:null, group:g};
+    });
+    g.userData = {type:'dougong', matKind:'dougong', home:g.position.clone(), paint:false, isGroup:true};
+    parts.push(g);
+    building.add(g);
+    g.children.forEach(c=>parts.push(c)); // children hoverable too
+  });
+}
+
+function buildRoofFrame(){
+  const baseY = TOP + 1.5;             // sit above dougong
+  const tiers = [
+    {hw:9.0, y:baseY,        h:0.55},
+    {hw:6.0, y:baseY+1.6,    h:0.5},
+    {hw:3.2, y:baseY+3.1,    h:0.45},
+  ];
+  // transverse beams (along x) over each z column line
+  ZS.forEach(z=>{
+    tiers.forEach((tr,i)=>{
+      const b = new THREE.Mesh(new THREE.BoxGeometry(tr.hw*2, tr.h, 0.7), BASE.beam.clone());
+      b.position.set(0, tr.y, z*(1-i*0.18));
+      add(b, 'beam', {paint:true});
+      // short struts (蜀柱) between tiers
+      if(i<tiers.length-1){
+        const st=new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.2,1.05,10), BASE.beam.clone());
+        st.position.set(tr.hw>4? tr.hw*0.5:0, tr.y+0.8, z*(1-i*0.18));
+        add(st,'beam',{paint:true});
+        const st2=st.clone(); st2.position.x=-st.position.x; add(st2,'beam',{paint:true});
+      }
+    });
+  });
+  // ridge beam
+  const ridge = new THREE.Mesh(new THREE.CylinderGeometry(0.3,0.3,18,12), BASE.purlin.clone());
+  ridge.rotation.x=Math.PI/2; ridge.position.set(0, baseY+4.0, 0);
+  add(ridge,'purlin',{paint:true});
+
+  // purlins: run along z (depth) at stepped heights across the slope
+  const ridgeY = baseY+4.0, eaveY = baseY-0.2;
+  const slots = 5; // each side
+  const purlinX = [];
+  for(let s=0;s<=slots;s++){
+    const f = s/slots;            // 0 ridge .. 1 eave
+    const x = 9.0*f;              // half-span position
+    const y = ridgeY - (ridgeY-eaveY)*Math.pow(f,1.18);
+    purlinX.push({x,y});
+  }
+  purlinX.forEach(({x,y})=>{
+    [1,-1].forEach(side=>{
+      if(x===0 && side===-1) return;
+      const p = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,18,12), BASE.purlin.clone());
+      p.rotation.x=Math.PI/2; p.position.set(side*x, y, 0);
+      add(p,'purlin',{paint:true});
+    });
+  });
+
+  // rafters: many sloping members from ridge down to eave, both faces
+  const NR = 26;
+  for(let i=0;i<NR;i++){
+    const z = -8.6 + (17.2)*i/(NR-1);
+    [1,-1].forEach(side=>{
+      // approximate the curved slope with two segments
+      for(let seg=0; seg<purlinX.length-1; seg++){
+        const a=purlinX[seg], b=purlinX[seg+1];
+        const ax=side*a.x, bx=side*b.x;
+        const dx=bx-ax, dy=b.y-a.y;
+        const len=Math.hypot(dx,dy);
+        const r = new THREE.Mesh(new THREE.BoxGeometry(0.13,0.1,len), BASE.rafter.clone());
+        r.position.set((ax+bx)/2, (a.y+b.y)/2+0.16, z);
+        r.rotation.y = Math.PI/2;     // align length toward x
+        r.rotation.z = Math.atan2(dy,dx);
+        add(r,'rafter',{paint:false});
+      }
+    });
+  }
+}
+
+function buildRoofSkin(){
+  const baseY = TOP+1.5;
+  const ridgeY = baseY+4.0, eaveY=baseY-0.6;
+  // two sweeping tiled surfaces using a thin curved shell per side
+  const segs=7;
+  for(let s=0;s<segs;s++){
+    const f0=s/segs, f1=(s+1)/segs;
+    const x0=9.6*f0, x1=9.6*f1;
+    const y0=ridgeY-(ridgeY-eaveY)*Math.pow(f0,1.18);
+    const y1=ridgeY-(ridgeY-eaveY)*Math.pow(f1,1.18);
+    [1,-1].forEach(side=>{
+      const dx=(x1-x0)*side, dy=y1-y0, len=Math.hypot(dx,dy);
+      const tile=new THREE.Mesh(new THREE.BoxGeometry(len, 0.22, 18.6), BASE.roof.clone());
+      tile.position.set(side*(x0+x1)/2, (y0+y1)/2+0.32, 0);
+      tile.rotation.z=Math.atan2(dy, (x1-x0)*side);
+      add(tile,'roof',{paint:false});
+    });
+  }
+  // flared eave fascia
+  [1,-1].forEach(side=>{
+    const f=new THREE.Mesh(new THREE.BoxGeometry(1.4,0.3,19.4), BASE.roof.clone());
+    f.position.set(side*9.7, eaveY+0.4, 0);
+    f.rotation.z=side*0.35;
+    add(f,'roof',{paint:false});
+  });
+  // ridge cap + ornaments
+  const cap=new THREE.Mesh(new THREE.BoxGeometry(0.9,0.7,18.8), BASE.roof.clone());
+  cap.position.set(0, ridgeY+0.55, 0);
+  add(cap,'roof',{paint:false});
+  [-9.4,9.4].forEach(z=>{
+    const orn=new THREE.Mesh(new THREE.ConeGeometry(0.55,1.2,6), PAINT_GOLD.clone());
+    orn.position.set(0, ridgeY+1.2, z*0.99);
+    add(orn,'roof',{paint:false, matKind:'gold'});
+  });
+}
+
+buildPlatform();
+buildColumns();
+buildFang();
+buildDougong();
+buildRoofFrame();
+buildRoofSkin();
+
+/* ---- tenon-joint glow markers (revealed in X-ray) ---- */
+function addJoint(x,y,z){
+  const j=new THREE.Mesh(new THREE.SphereGeometry(0.22,12,12), JOINT.clone());
+  j.position.set(x,y,z); j.userData={isJoint:true};
+  joints.push(j); building.add(j);
+}
+XS.forEach(x=>ZS.forEach(z=> addJoint(x, TOP-0.6, z) )); // column-head / fang tenons
+XS.forEach(x=>ZS.forEach(z=> addJoint(x, TOP+0.3, z) )); // dougong seats
+
+/* ============================================================
+   State + interaction
+   ============================================================ */
+const S = {asm:100, wea:0, xray:false, rot:false, exp:false};
+
+function maxOrder(){ return Math.max(...Object.values(META).map(m=>m.order)); } // 5
+const MAXO = 5;
+
+/* assembly: members of order n rise into place across a band of the slider */
+function applyAssembly(){
+  if(S.exp) return;                         // exploded view overrides
+  const t = S.asm/100 * MAXO;               // 0..5
+  parts.forEach(p=>{
+    if(p.userData.isJoint) return;
+    const home = p.userData.home; if(!home) return; // dougong children share group
+    const ord = META[p.userData.type] ? META[p.userData.type].order : 0;
+    if(t >= ord+0.0){
+      p.visible = true;
+      const rise = Math.min(1, (t-ord)/0.85);    // 0..1 in
+      const e = rise<1 ? 1-Math.pow(1-rise,3) : 1;
+      p.position.x = home.x;
+      p.position.z = home.z;
+      p.position.y = home.y - (1-e)*14;
+      if(p.material) p.material.opacity = S.xray? (p.userData.xrayHide?0.07:1) : 1;
+    } else {
+      p.visible = false;
+    }
+  });
+  // dougong children follow their group via group home
+  syncDougong();
+  updatePhaseUI(t);
+}
+
+function syncDougong(){
+  // group meshes carry home; child meshes (no home) reposition through parent group transform automatically
+  parts.forEach(p=>{
+    if(p.userData.isGroup){
+      const home=p.userData.home;
+      const ord=3;
+      const t=S.asm/100*MAXO;
+      if(S.exp) return;
+      if(t>=ord){
+        p.visible=true;
+        const rise=Math.min(1,(t-ord)/0.85);
+        const e=rise<1?1-Math.pow(1-rise,3):1;
+        p.position.set(home.x, home.y-(1-e)*14, home.z);
+      } else p.visible=false;
+    }
+  });
+}
+
+function applyExploded(){
+  parts.forEach(p=>{
+    if(p.userData.isJoint) return;
+    const home=p.userData.home;
+    if(p.userData.isGroup && home){
+      p.visible=true;
+      const dir=new THREE.Vector3(home.x, home.y-TOP, home.z).normalize();
+      const k=(3)*1.6;
+      p.position.set(home.x+dir.x*k, home.y+ (home.y>TOP? 4: 2.5), home.z+dir.z*k);
+      return;
+    }
+    if(!home) return;
+    p.visible=true;
+    const ord=META[p.userData.type]?META[p.userData.type].order:0;
+    const up=(ord-2)*2.6;
+    const out=new THREE.Vector3(home.x,0,home.z).normalize().multiplyScalar(ord*0.9);
+    p.position.set(home.x+out.x, home.y+up, home.z+out.z);
+  });
+  document.querySelectorAll('.step').forEach(s=>s.classList.add('done'));
+  document.getElementById('phaseNow').textContent='Exploded';
+  document.getElementById('phaseZh').textContent='分件';
+}
+
+function applyWeather(){
+  const t=S.wea/100;
+  parts.forEach(p=>{
+    if(p.userData.isJoint || !p.material) return;
+    const kind=p.userData.matKind;
+    let base;
+    if(kind==='paintRed') base=PAINT_RED;
+    else if(kind==='gold') base=PAINT_GOLD;
+    else base=BASE[kind]||BASE.column;
+    if(S.xray && p.userData.xrayHide){ p.material=XRAY; return; }
+    // painted members peel faster (visible bleaching), plain wood greys
+    const eff = p.userData.paint ? Math.min(1,t*1.25) : t;
+    p.material = t>0 ? weathered(base, eff) : base;
+  });
+}
+
+function applyXray(){
+  parts.forEach(p=>{
+    if(p.userData.isJoint || !p.material) return;
+    if(S.xray && p.userData.xrayHide){
+      p.material = XRAY;
+    }
+  });
+  joints.forEach(j=>{
+    j.material.opacity = S.xray? 0.95:0;
+    j.visible = S.xray;
+  });
+  if(!S.xray) applyWeather();
+}
+
+function refresh(){
+  if(S.exp) applyExploded(); else applyAssembly();
+  applyWeather();
+  applyXray();
+}
+
+function updatePhaseUI(t){
+  document.getElementById('asm');
+  const reached = Math.floor(t+0.001);
+  document.querySelectorAll('.step').forEach(s=>{
+    const n=+s.dataset.s;
+    s.classList.toggle('done', t>=n-0.15);
+  });
+  const idx=Math.max(0,Math.min(PHASES.length-1, Math.round(t)));
+  document.getElementById('phaseNow').textContent=PHASES[idx].now;
+  document.getElementById('phaseZh').textContent=PHASES[idx].zh;
+}
+
+/* ---------- UI wiring ---------- */
+const $=id=>document.getElementById(id);
+$('asm').addEventListener('input',e=>{
+  S.asm=+e.target.value; $('vAsm').textContent=S.asm+'%';
+  if(S.exp){S.exp=false; $('bExp').classList.remove('on');}
+  refresh();
+});
+$('wea').addEventListener('input',e=>{
+  S.wea=+e.target.value;
+  const yrs=Math.round(S.wea*12);   // up to ~1200 yrs
+  $('vWea').textContent = yrs===0? '0 yr' : yrs+' yr';
+  applyWeather(); applyXray();
+});
+$('bXray').addEventListener('click',e=>{
+  S.xray=!S.xray; e.currentTarget.classList.toggle('on',S.xray); refresh();
+});
+$('bRot').addEventListener('click',e=>{
+  S.rot=!S.rot; e.currentTarget.classList.toggle('on',S.rot); controls.autoRotate=S.rot;
+});
+$('bExp').addEventListener('click',e=>{
+  S.exp=!S.exp; e.currentTarget.classList.toggle('on',S.exp);
+  if(S.exp){ $('asm').value=100; S.asm=100; $('vAsm').textContent='100%'; }
+  refresh();
+});
+
+/* upload mock analysis */
+const samples=[
+  {n:"Tang-style single-eave hall", tags:["殿堂 diàntáng","柱·梁·斗栱","廡殿頂 hip roof"]},
+  {n:"Foguang Temple Main Hall", tags:["唐 Tang 857 CE","七鋪作斗栱","金箱斗底槽"]},
+  {n:"Yingxian Wooden Pagoda (bay)", tags:["遼 Liao 1056","樓閣式 tower","暗層 mezzanine"]},
+];
+const drop=$('drop');
+drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('hot');});
+drop.addEventListener('dragleave',()=>drop.classList.remove('hot'));
+function analyze(name){
+  const t=drop.querySelector('.t');
+  t.innerHTML='<b>Analyzing…</b><br>detecting columns · dougong · roof';
+  setTimeout(()=>{
+    const s=samples[Math.floor(Math.random()*samples.length)];
+    $('identName').textContent=s.n;
+    $('identTags').innerHTML=s.tags.map(x=>`<span class="tag">${x}</span>`).join('');
+    t.innerHTML='<b>✓ '+(name||'photo')+'</b><br>structure mapped — replaying assembly';
+    // replay the build for flair
+    let v=0; S.exp=false; $('bExp').classList.remove('on');
+    const iv=setInterval(()=>{ v+=3.5; if(v>=100){v=100;clearInterval(iv);} S.asm=v; $('asm').value=v; $('vAsm').textContent=Math.round(v)+'%'; refresh(); },28);
+  },1100);
+}
+$('file').addEventListener('change',e=>{ const f=e.target.files[0]; if(f) analyze(f.name); });
+drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('hot'); const f=e.dataTransfer.files[0]; if(f) analyze(f.name);});
+
+/* ---------- hover tooltip via raycaster ---------- */
+const ray=new THREE.Raycaster(), m=new THREE.Vector2(), tip=$('tip');
+let hi=null;
+addEventListener('pointermove',e=>{
+  m.x=(e.clientX/innerWidth)*2-1; m.y=-(e.clientY/innerHeight)*2+1;
+  ray.setFromCamera(m,camera);
+  const hits=ray.intersectObjects(parts,true).filter(h=>h.object.visible && h.object.userData.type && !h.object.userData.isJoint && (!h.object.material||h.object.material.opacity>0.2));
+  if(hits.length){
+    const o=hits[0].object;
+    const d=META[o.userData.type];
+    if(d){
+      $('tZh').textContent=d.zh; $('tPin').textContent=d.pin;
+      $('tRole').textContent=d.role; $('tDesc').textContent=d.desc;
+      const tw=tip.offsetWidth, th=tip.offsetHeight;
+      let x=e.clientX+16, y=e.clientY+16;
+      if(x+tw>innerWidth) x=e.clientX-tw-16;
+      if(y+th>innerHeight) y=e.clientY-th-16;
+      tip.style.left=x+'px'; tip.style.top=y+'px';
+      tip.classList.add('show');
+      if(hi!==o){ if(hi&&hi.material&&hi.material.emissive) hi.material.emissive.setHex(0x000000);
+        hi=o; }
+    }
+  } else { tip.classList.remove('show'); }
+});
+
+addEventListener('resize',()=>{
+  camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+});
+
+/* ---------- intro reveal + loop ---------- */
+let intro=0;
+function loop(){
+  requestAnimationFrame(loop);
+  controls.update();
+  // gentle pulse on tenon joints in xray
+  if(S.xray){
+    const p=0.6+0.35*Math.sin(performance.now()*0.004);
+    joints.forEach(j=>{ j.material.emissiveIntensity=p; j.scale.setScalar(0.8+0.25*Math.sin(performance.now()*0.004)); });
+  }
+  renderer.render(scene,camera);
+}
+refresh();
+loop();
+
+/* play the assembly once on load */
+(function intbefore(){
+  S.asm=0; $('asm').value=0; $('vAsm').textContent='0%'; refresh();
+  let v=0; const iv=setInterval(()=>{ v+=2.2; if(v>=100){v=100;clearInterval(iv);} S.asm=v; $('asm').value=v; $('vAsm').textContent=Math.round(v)+'%'; refresh(); },26);
+})();
+</script>
+</body>
+</html>

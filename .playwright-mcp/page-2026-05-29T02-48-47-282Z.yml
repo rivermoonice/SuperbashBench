@@ -1,0 +1,10 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]: Claude Opus 4.8 · SVG Showcase
+    - heading "A Pelican Riding a Bicycle" [level=1] [ref=e4]:
+      - text: A Pelican
+      - emphasis [ref=e5]: Riding a Bicycle
+    - paragraph [ref=e6]: One hand-drawn inline SVG, pure CSS motion — pedaling down a sunny seaside boardwalk.
+  - main [ref=e7]:
+    - img "A cartoon pelican wearing a sailor cap riding a bicycle along a coastal road" [ref=e8]
+  - paragraph [ref=e135]: Inline SVG + CSS keyframes · no scripts, no libraries
