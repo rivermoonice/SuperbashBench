@@ -59,8 +59,8 @@ const models = {
     'gpt-5-5': {
         name: 'GPT 5.5',
         tag: 'GPT 5.5',
-        blogUrl: 'https://openai.com',
-        blogLabel: 'Learn about OpenAI →',
+        blogUrl: './gpt-5-5/',
+        blogLabel: 'Read the receipt →',
         heroSubtitle: 'GPT 5.5 &mdash; OpenAI-labeled builds created for this local showcase.',
         badge: 'GPT 5.5',
         heading: 'Agent-Team Build Lane',

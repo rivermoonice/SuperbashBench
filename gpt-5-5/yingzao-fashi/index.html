@@ -1,999 +1,1117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yingzao Fashi - Building Standards Visualization</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0a0f;
-            color: #fff;
-            overflow: hidden;
-        }
-        
-        #canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .ui-panel {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(20, 20, 35, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 200, 100, 0.2);
-            border-radius: 12px;
-            padding: 20px;
-            width: 300px;
-            max-height: calc(100vh - 40px);
-            overflow-y: auto;
-            z-index: 100;
-        }
-        
-        .ui-panel h1 {
-            font-size: 1.3rem;
-            color: #f0c674;
-            margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(240, 198, 116, 0.3);
-        }
-        
-        .ui-panel .subtitle {
-            font-size: 0.8rem;
-            color: #888;
-            margin-bottom: 20px;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPT 5.5 Yingzao Fashi Timber Atlas</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<style>
+  :root {
+    --paper: #ebe3d1;
+    --ink: #1f2524;
+    --soot: #101817;
+    --blueprint: #16272b;
+    --jade: #4e8c79;
+    --cinnabar: #a74632;
+    --brass: #c7984b;
+    --tile: #26313a;
+    --line: rgba(31, 37, 36, 0.18);
+    --light: rgba(255, 250, 236, 0.82);
+  }
 
-        .model-badge {
-            display: inline-flex;
-            align-items: center;
-            margin-bottom: 16px;
-            padding: 5px 10px;
-            border: 1px solid rgba(240, 198, 116, 0.35);
-            border-radius: 999px;
-            background: rgba(240, 198, 116, 0.1);
-            color: #f0c674;
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-        
-        .control-group {
-            margin-bottom: 20px;
-        }
-        
-        .control-group label {
-            display: block;
-            font-size: 0.85rem;
-            color: #ccc;
-            margin-bottom: 8px;
-        }
-        
-        .slider-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        input[type="range"] {
-            flex: 1;
-            -webkit-appearance: none;
-            appearance: none;
-            height: 6px;
-            background: linear-gradient(90deg, #8b4513, #d4a574);
-            border-radius: 3px;
-            outline: none;
-        }
-        
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            background: #f0c674;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(240, 198, 116, 0.5);
-        }
-        
-        .value-display {
-            min-width: 40px;
-            text-align: right;
-            font-size: 0.85rem;
-            color: #f0c674;
-        }
-        
-        .toggle-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #8b4513, #a0522d);
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 10px;
-        }
-        
-        .toggle-btn:hover {
-            background: linear-gradient(135deg, #a0522d, #cd853f);
-            transform: translateY(-2px);
-        }
-        
-        .toggle-btn.active {
-            background: linear-gradient(135deg, #228b22, #32cd32);
-            box-shadow: 0 0 15px rgba(50, 205, 50, 0.3);
-        }
-        
-        .legend {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .legend h3 {
-            font-size: 0.9rem;
-            color: #f0c674;
-            margin-bottom: 10px;
-        }
-        
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-            font-size: 0.8rem;
-            color: #aaa;
-        }
-        
-        .legend-color {
-            width: 16px;
-            height: 16px;
-            border-radius: 3px;
-        }
-        
-        .tooltip {
-            position: fixed;
-            background: rgba(20, 20, 35, 0.95);
-            border: 1px solid rgba(240, 198, 116, 0.3);
-            border-radius: 8px;
-            padding: 12px 16px;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.2s;
-            z-index: 1000;
-            max-width: 250px;
-        }
-        
-        .tooltip.visible {
-            opacity: 1;
-        }
-        
-        .tooltip h4 {
-            color: #f0c674;
-            font-size: 0.95rem;
-            margin-bottom: 4px;
-        }
-        
-        .tooltip p {
-            color: #aaa;
-            font-size: 0.8rem;
-            line-height: 1.4;
-        }
-        
-        .construction-order {
-            margin-top: 15px;
-            padding: 12px;
-            background: rgba(139, 69, 19, 0.2);
-            border-radius: 8px;
-            font-size: 0.8rem;
-        }
-        
-        .construction-order h4 {
-            color: #f0c674;
-            margin-bottom: 8px;
-        }
-        
-        .order-step {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-            color: #aaa;
-        }
-        
-        .order-step.active {
-            color: #f0c674;
-            font-weight: 500;
-        }
-        
-        .step-number {
-            width: 20px;
-            height: 20px;
-            background: #8b4513;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-        }
-        
-        .order-step.active .step-number {
-            background: #f0c674;
-            color: #0a0a0f;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            margin-top: 5px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #8b4513, #f0c674);
-            transition: width 0.3s;
-        }
-        
-        .upload-area {
-            border: 2px dashed rgba(240, 198, 116, 0.3);
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            margin-bottom: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .upload-area:hover {
-            border-color: rgba(240, 198, 116, 0.6);
-            background: rgba(240, 198, 116, 0.05);
-        }
-        
-        .upload-area input {
-            display: none;
-        }
-        
-        .upload-text {
-            font-size: 0.85rem;
-            color: #888;
-        }
-        
-        .upload-text span {
-            color: #f0c674;
-        }
+  * {
+    box-sizing: border-box;
+  }
 
-        .info-badge {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(20, 20, 35, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(240, 198, 116, 0.2);
-            border-radius: 8px;
-            padding: 12px 16px;
-            font-size: 0.8rem;
-            color: #888;
-        }
+  html,
+  body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+  }
 
-        .info-badge span {
-            color: #f0c674;
-        }
-    </style>
+  body {
+    overflow: hidden;
+    color: var(--ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      linear-gradient(90deg, rgba(31, 37, 36, 0.07) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(31, 37, 36, 0.06) 1px, transparent 1px),
+      radial-gradient(circle at 72% 22%, rgba(199, 152, 75, 0.24), transparent 31%),
+      linear-gradient(145deg, #f4eddb 0%, #d7ccb6 52%, #bcc4b8 100%);
+    background-size: 38px 38px, 38px 38px, auto, auto;
+  }
+
+  #view {
+    position: fixed;
+    inset: 0;
+  }
+
+  .top-strip {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    right: 18px;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: minmax(230px, 380px) 1fr auto;
+    align-items: start;
+    gap: 18px;
+    pointer-events: none;
+  }
+
+  .title-block {
+    padding: 0;
+  }
+
+  .edition {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid rgba(167, 70, 50, 0.48);
+    border-radius: 4px;
+    background: rgba(255, 250, 236, 0.76);
+    color: var(--cinnabar);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 12px 0 6px;
+    color: #16201f;
+    font-size: clamp(30px, 4.8vw, 64px);
+    line-height: 0.92;
+    font-weight: 800;
+    letter-spacing: 0;
+  }
+
+  .subtitle {
+    max-width: 420px;
+    margin: 0;
+    color: rgba(31, 37, 36, 0.72);
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .phase-ruler {
+    justify-self: center;
+    width: min(430px, 34vw);
+    padding-top: 8px;
+    color: rgba(31, 37, 36, 0.66);
+  }
+
+  .ruler-line {
+    position: relative;
+    height: 12px;
+    border-top: 2px solid rgba(31, 37, 36, 0.34);
+  }
+
+  .ruler-line::before,
+  .ruler-line::after {
+    position: absolute;
+    top: -7px;
+    width: 2px;
+    height: 12px;
+    background: rgba(31, 37, 36, 0.34);
+    content: "";
+  }
+
+  .ruler-line::before {
+    left: 0;
+  }
+
+  .ruler-line::after {
+    right: 0;
+  }
+
+  .ruler-progress {
+    position: absolute;
+    top: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--cinnabar);
+    transform-origin: left center;
+  }
+
+  .phase-readout {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 8px;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .seal-column {
+    justify-self: end;
+    width: 78px;
+    min-height: 96px;
+    border: 3px double rgba(167, 70, 50, 0.75);
+    background: rgba(255, 250, 236, 0.62);
+    color: var(--cinnabar);
+    display: grid;
+    place-items: center;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+  }
+
+  .component-ledger {
+    position: fixed;
+    right: 18px;
+    top: 150px;
+    z-index: 22;
+    width: 226px;
+    border-left: 2px solid rgba(31, 37, 36, 0.28);
+    padding-left: 14px;
+    pointer-events: none;
+  }
+
+  .component-ledger h2 {
+    margin: 0 0 12px;
+    color: rgba(31, 37, 36, 0.62);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .ledger-item {
+    display: grid;
+    grid-template-columns: 16px 1fr;
+    gap: 8px;
+    margin: 0 0 10px;
+    color: rgba(31, 37, 36, 0.73);
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .ledger-swatch {
+    width: 13px;
+    height: 13px;
+    margin-top: 1px;
+    border: 1px solid rgba(31, 37, 36, 0.2);
+  }
+
+  .ledger-item strong {
+    display: block;
+    color: #141b1a;
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .label-layer,
+  .leader-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 18;
+    pointer-events: none;
+  }
+
+  .leader-layer {
+    z-index: 17;
+  }
+
+  .tag {
+    position: absolute;
+    min-width: 112px;
+    max-width: 174px;
+    padding: 7px 9px 8px;
+    border: 1px solid rgba(31, 37, 36, 0.24);
+    background: rgba(249, 244, 228, 0.76);
+    box-shadow: 0 12px 28px rgba(36, 29, 18, 0.14);
+    transform: translate(-50%, -50%);
+    transition: opacity 160ms ease, transform 160ms ease;
+  }
+
+  .tag.hidden {
+    opacity: 0;
+    transform: translate(-50%, -44%);
+  }
+
+  .tag .zh {
+    display: block;
+    color: #121817;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1.1;
+  }
+
+  .tag .en {
+    display: block;
+    margin-top: 3px;
+    color: rgba(31, 37, 36, 0.66);
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+  }
+
+  .bottom-console {
+    position: fixed;
+    left: 18px;
+    right: 18px;
+    bottom: 16px;
+    z-index: 24;
+    display: grid;
+    grid-template-columns: 1.1fr 1.1fr auto auto minmax(180px, 260px);
+    gap: 12px;
+    align-items: stretch;
+    pointer-events: auto;
+  }
+
+  .control-slab {
+    min-width: 0;
+    border: 1px solid rgba(31, 37, 36, 0.2);
+    background: rgba(255, 250, 236, 0.82);
+    box-shadow: 0 14px 40px rgba(35, 31, 23, 0.18);
+    padding: 12px 14px;
+  }
+
+  .control-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 11px;
+    color: rgba(31, 37, 36, 0.6);
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .control-head output {
+    color: var(--cinnabar);
+    font-variant-numeric: tabular-nums;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 24px;
+    margin: 0;
+    appearance: none;
+    background: transparent;
+    cursor: ew-resize;
+  }
+
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 7px;
+    border: 1px solid rgba(31, 37, 36, 0.24);
+    background:
+      repeating-linear-gradient(90deg, transparent 0 19px, rgba(31, 37, 36, 0.2) 19px 20px),
+      linear-gradient(90deg, rgba(78, 140, 121, 0.52), rgba(167, 70, 50, 0.58));
+  }
+
+  input[type="range"]::-webkit-slider-thumb {
+    width: 18px;
+    height: 30px;
+    margin-top: -12px;
+    appearance: none;
+    border: 2px solid #161c1b;
+    border-radius: 0;
+    background: var(--paper);
+    box-shadow: 0 2px 0 var(--cinnabar);
+  }
+
+  input[type="range"]::-moz-range-track {
+    height: 7px;
+    border: 1px solid rgba(31, 37, 36, 0.24);
+    background: linear-gradient(90deg, rgba(78, 140, 121, 0.52), rgba(167, 70, 50, 0.58));
+  }
+
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 28px;
+    border: 2px solid #161c1b;
+    border-radius: 0;
+    background: var(--paper);
+  }
+
+  .toggle {
+    display: grid;
+    align-content: center;
+    min-width: 128px;
+    border: 1px solid rgba(31, 37, 36, 0.24);
+    background: rgba(22, 39, 43, 0.92);
+    color: #f8f0dc;
+    padding: 10px 13px;
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    transition: background 150ms ease, transform 150ms ease, color 150ms ease;
+  }
+
+  .toggle:hover {
+    transform: translateY(-2px);
+  }
+
+  .toggle[aria-pressed="true"] {
+    background: var(--cinnabar);
+    color: #fff8e8;
+  }
+
+  .toggle strong {
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .toggle span {
+    display: block;
+    margin-top: 3px;
+    color: currentColor;
+    opacity: 0.74;
+    font-size: 11px;
+  }
+
+  .status-slab {
+    min-width: 0;
+    border: 1px solid rgba(31, 37, 36, 0.22);
+    background: rgba(16, 24, 23, 0.88);
+    color: #f7eed9;
+    padding: 12px 14px;
+  }
+
+  .status-slab .phase-name {
+    margin: 0;
+    color: var(--brass);
+    font-size: 15px;
+    font-weight: 850;
+  }
+
+  .status-slab .phase-note {
+    margin: 4px 0 0;
+    color: rgba(247, 238, 217, 0.76);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  .hint-line {
+    position: fixed;
+    left: 22px;
+    bottom: 112px;
+    z-index: 20;
+    color: rgba(31, 37, 36, 0.6);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    pointer-events: none;
+  }
+
+  .weather-veils {
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    pointer-events: none;
+    opacity: var(--weather, 0);
+    background:
+      linear-gradient(90deg, transparent, rgba(77, 82, 76, 0.13) 46%, transparent 48%),
+      repeating-linear-gradient(103deg, rgba(34, 39, 35, 0.1) 0 1px, transparent 1px 13px);
+    mix-blend-mode: multiply;
+    transition: opacity 160ms ease;
+  }
+
+  @media (max-width: 940px) {
+    .top-strip {
+      grid-template-columns: 1fr auto;
+    }
+
+    .phase-ruler,
+    .component-ledger,
+    .hint-line {
+      display: none;
+    }
+
+    .bottom-console {
+      grid-template-columns: 1fr 1fr;
+      max-height: 48vh;
+      overflow: auto;
+    }
+
+    .status-slab,
+    .toggle {
+      min-height: 72px;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .top-strip {
+      top: 12px;
+      left: 12px;
+      right: 12px;
+    }
+
+    .seal-column {
+      width: 58px;
+      min-height: 78px;
+      font-size: 15px;
+    }
+
+    .subtitle {
+      display: none;
+    }
+
+    .bottom-console {
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
 </head>
 <body>
-    <div id="canvas-container"></div>
-    
-    <div class="ui-panel">
-        <h1>营造法式</h1>
-        <div class="subtitle">Yingzao Fashi - Building Standards</div>
-        <div class="model-badge">GPT 5.5</div>
-        
-        <div class="upload-area" id="uploadArea">
-            <input type="file" id="photoUpload" accept="image/*">
-            <div class="upload-text">
-                <span>Upload photo</span> of ancient building<br>
-                <small>(or use default model)</small>
-            </div>
-        </div>
-        
-        <div class="control-group">
-            <label>Assembly Progress</label>
-            <div class="slider-container">
-                <input type="range" id="assemblySlider" min="0" max="100" value="100">
-                <span class="value-display" id="assemblyValue">100%</span>
-            </div>
-        </div>
-        
-        <div class="control-group">
-            <label>Age & Weathering</label>
-            <div class="slider-container">
-                <input type="range" id="weatheringSlider" min="0" max="100" value="0">
-                <span class="value-display" id="weatheringValue">0%</span>
-            </div>
-        </div>
-        
-        <button class="toggle-btn" id="xrayBtn">X-Ray Mode (View Joints)</button>
-        <button class="toggle-btn" id="rotateBtn">Auto Rotation</button>
-        <button class="toggle-btn" id="explodeBtn">Exploded View</button>
-        
-        <div class="construction-order">
-            <h4>Construction Sequence</h4>
-            <div class="order-step" data-step="1">
-                <span class="step-number">1</span>
-                <span>Foundation & Columns</span>
-            </div>
-            <div class="order-step" data-step="2">
-                <span class="step-number">2</span>
-                <span>Beams (Liang)</span>
-            </div>
-            <div class="order-step" data-step="3">
-                <span class="step-number">3</span>
-                <span>Dougong Brackets</span>
-            </div>
-            <div class="order-step" data-step="4">
-                <span class="step-number">4</span>
-                <span>Purlins & Rafters</span>
-            </div>
-            <div class="order-step" data-step="5">
-                <span class="step-number">5</span>
-                <span>Roof Tiles</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill" style="width: 100%"></div>
-            </div>
-        </div>
-        
-        <div class="legend">
-            <h3>Structural Components</h3>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #8b4513;"></div>
-                <span>Columns (Zhu)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #a0522d;"></div>
-                <span>Beams (Liang)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #cd853f;"></div>
-                <span>Dougong Brackets</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #d4a574;"></div>
-                <span>Purlins (Lin)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #8b7355;"></div>
-                <span>Rafters (Chuan)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #696969;"></div>
-                <span>Roof Tiles</span>
-            </div>
-        </div>
+<main id="view" aria-label="Interactive 3D inspired Yingzao Fashi timber disassembly"></main>
+<div class="weather-veils" aria-hidden="true"></div>
+
+<header class="top-strip">
+  <section class="title-block" aria-label="Project title">
+    <div class="edition">GPT 5.5 Reconstruction</div>
+    <h1>營造法式<br>Timber Atlas</h1>
+    <p class="subtitle">A drafting-table disassembly of bracket sets, beams, columns, purlins, rafters, roof skin, and joinery logic.</p>
+  </section>
+  <section class="phase-ruler" aria-label="Assembly ruler">
+    <div class="ruler-line"><span class="ruler-progress" id="rulerProgress"></span></div>
+    <div class="phase-readout">
+      <span>foundations</span>
+      <span id="rulerPhase">roof complete</span>
     </div>
-    
-    <div class="tooltip" id="tooltip">
-        <h4 id="tooltipTitle"></h4>
-        <p id="tooltipDesc"></p>
-    </div>
-    
-    <div class="info-badge">
-        <span>Mouse:</span> Rotate • <span>Scroll:</span> Zoom • <span>Hover:</span> Info
-    </div>
+  </section>
+  <aside class="seal-column" aria-label="Visible GPT 5.5 mark">GPT<br>5.5</aside>
+</header>
 
-    <script>
-        // Component data with construction order and descriptions
-        const componentData = {
-            foundation: {
-                name: "Foundation (Jichu)",
-                description: "Stone base supporting the column. Raises the wooden structure above ground to prevent moisture damage.",
-                order: 0
-            },
-            column: {
-                name: "Column (Zhu)",
-                description: "Vertical load-bearing element. The 'Entasis' curve (Zhousha) gives it a slight taper for visual elegance.",
-                order: 1
-            },
-            beam: {
-                name: "Beam (Liang)",
-                description: "Horizontal member connecting columns and supporting the roof structure. Transfers loads to columns.",
-                order: 2
-            },
-            fang: {
-                name: "Tie Beam (Fang)",
-                description: "Horizontal stabilizing member connecting columns at different levels to resist lateral forces.",
-                order: 2
-            },
-            dougong: {
-                name: "Dougong Brackets",
-                description: "Interlocking bracket sets that transfer roof loads to columns. Allow for flexible seismic resistance.",
-                order: 3
-            },
-            purlin: {
-                name: "Purlin (Lin)",
-                description: "Horizontal beam supporting rafters. Runs parallel to the roof ridge.",
-                order: 4
-            },
-            rafter: {
-                name: "Rafter (Chuan)",
-                description: "Sloping members supporting the roof tiles. Create the characteristic curved roof profile.",
-                order: 4
-            },
-            roof: {
-                name: "Roof Tiles (Wa)",
-                description: "Glazed ceramic tiles protecting the structure. The curve channels rainwater efficiently.",
-                order: 5
-            }
-        };
+<aside class="component-ledger" aria-label="Component color legend">
+  <h2>Component Register</h2>
+  <div class="ledger-item"><span class="ledger-swatch" style="background:#b66531"></span><span><strong>柱 Zhu</strong>main timber columns</span></div>
+  <div class="ledger-item"><span class="ledger-swatch" style="background:#7a4728"></span><span><strong>枋 Fang</strong>tie beams and architraves</span></div>
+  <div class="ledger-item"><span class="ledger-swatch" style="background:#d2a34f"></span><span><strong>斗栱 Dougong</strong>bracket-block cantilevers</span></div>
+  <div class="ledger-item"><span class="ledger-swatch" style="background:#95552f"></span><span><strong>梁 Liang</strong>cross beams and collars</span></div>
+  <div class="ledger-item"><span class="ledger-swatch" style="background:#4e8c79"></span><span><strong>榫卯</strong>tenon and mortise guides</span></div>
+  <div class="ledger-item"><span class="ledger-swatch" style="background:#293640"></span><span><strong>瓦 Wa</strong>curved roof tile shell</span></div>
+</aside>
 
-        // Three.js setup
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0a0a0f);
-        scene.fog = new THREE.Fog(0x0a0a0f, 20, 80);
+<svg class="leader-layer" id="leaderLayer" aria-hidden="true"></svg>
+<div class="label-layer" id="labelLayer" aria-hidden="true"></div>
 
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(25, 20, 25);
+<div class="hint-line">Drag to orbit · Scroll to zoom · Labels track the timber members</div>
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
+<form class="bottom-console" aria-label="Yingzao Fashi controls">
+  <label class="control-slab">
+    <span class="control-head">Assembly Progress <output id="assemblyOut">100%</output></span>
+    <input id="assembly" type="range" min="0" max="100" value="100">
+  </label>
+  <label class="control-slab">
+    <span class="control-head">Age &amp; Weathering <output id="ageOut">0 years</output></span>
+    <input id="age" type="range" min="0" max="100" value="0">
+  </label>
+  <button class="toggle" id="xray" type="button" aria-pressed="false">
+    <strong>X-ray</strong>
+    <span>transparent shell</span>
+  </button>
+  <button class="toggle" id="labels" type="button" aria-pressed="true">
+    <strong>Labels</strong>
+    <span>callouts visible</span>
+  </button>
+  <section class="status-slab" aria-live="polite">
+    <p class="phase-name" id="phaseName">Roof complete · 落成</p>
+    <p class="phase-note" id="phaseNote">All timber layers are seated: columns, beams, bracket sets, rafters, tiles, and ridge.</p>
+  </section>
+</form>
 
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        controls.maxPolarAngle = Math.PI / 2 - 0.1;
+<script>
+(() => {
+  const root = document.getElementById("view");
+  const labelLayer = document.getElementById("labelLayer");
+  const leaderLayer = document.getElementById("leaderLayer");
+  const assemblySlider = document.getElementById("assembly");
+  const ageSlider = document.getElementById("age");
+  const assemblyOut = document.getElementById("assemblyOut");
+  const ageOut = document.getElementById("ageOut");
+  const xrayButton = document.getElementById("xray");
+  const labelButton = document.getElementById("labels");
+  const phaseName = document.getElementById("phaseName");
+  const phaseNote = document.getElementById("phaseNote");
+  const rulerProgress = document.getElementById("rulerProgress");
+  const rulerPhase = document.getElementById("rulerPhase");
 
-        // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        scene.add(ambientLight);
+  const scene = new THREE.Scene();
+  scene.background = null;
+  scene.fog = new THREE.Fog(0xe3dbc7, 34, 72);
 
-        const sunLight = new THREE.DirectionalLight(0xfff5e6, 1);
-        sunLight.position.set(20, 30, 10);
-        sunLight.castShadow = true;
-        sunLight.shadow.mapSize.width = 2048;
-        sunLight.shadow.mapSize.height = 2048;
-        scene.add(sunLight);
+  const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 140);
+  camera.position.set(12, 10, 18);
 
-        const rimLight = new THREE.DirectionalLight(0x8b4513, 0.5);
-        rimLight.position.set(-20, 10, -20);
-        scene.add(rimLight);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  root.appendChild(renderer.domElement);
 
-        // Materials
-        const materials = {
-            wood: new THREE.MeshStandardMaterial({ 
-                color: 0x8b4513, 
-                roughness: 0.8,
-                metalness: 0.1
-            }),
-            woodDark: new THREE.MeshStandardMaterial({ 
-                color: 0x5d3a1a, 
-                roughness: 0.9 
-            }),
-            dougong: new THREE.MeshStandardMaterial({ 
-                color: 0xcd853f, 
-                roughness: 0.7 
-            }),
-            roof: new THREE.MeshStandardMaterial({ 
-                color: 0x696969, 
-                roughness: 0.6 
-            }),
-            roofTile: new THREE.MeshStandardMaterial({ 
-                color: 0x4a4a4a, 
-                roughness: 0.5 
-            }),
-            stone: new THREE.MeshStandardMaterial({ 
-                color: 0x808080, 
-                roughness: 0.9 
-            }),
-            paintRed: new THREE.MeshStandardMaterial({ 
-                color: 0x8b0000, 
-                roughness: 0.6 
-            }),
-            paintGold: new THREE.MeshStandardMaterial({ 
-                color: 0xd4af37, 
-                roughness: 0.4,
-                metalness: 0.3
-            }),
-            transparent: new THREE.MeshStandardMaterial({
-                color: 0xffffff,
-                transparent: true,
-                opacity: 0.15
-            })
-        };
+  const controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.07;
+  controls.target.set(0, 2.5, 0);
+  controls.minDistance = 11;
+  controls.maxDistance = 38;
+  controls.maxPolarAngle = Math.PI * 0.48;
 
-        // Weathering materials cache
-        const weatheredMaterials = {};
-        
-        function getWeatheredMaterial(baseMaterial, intensity) {
-            const key = baseMaterial.uuid + '-' + intensity;
-            if (!weatheredMaterials[key]) {
-                const newMat = baseMaterial.clone();
-                const grayFactor = intensity * 0.6;
-                newMat.color.r = baseMaterial.color.r * (1 - grayFactor) + 0.4 * grayFactor;
-                newMat.color.g = baseMaterial.color.g * (1 - grayFactor) + 0.4 * grayFactor;
-                newMat.color.b = baseMaterial.color.b * (1 - grayFactor) + 0.4 * grayFactor;
-                newMat.roughness = Math.min(1, baseMaterial.roughness + intensity * 0.3);
-                weatheredMaterials[key] = newMat;
-            }
-            return weatheredMaterials[key];
-        }
+  const hemi = new THREE.HemisphereLight(0xfff7df, 0x6b746f, 1.85);
+  scene.add(hemi);
 
-        // Building group
-        const buildingGroup = new THREE.Group();
-        scene.add(buildingGroup);
+  const sun = new THREE.DirectionalLight(0xfff0cf, 2.35);
+  sun.position.set(8, 16, 8);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.left = -18;
+  sun.shadow.camera.right = 18;
+  sun.shadow.camera.top = 18;
+  sun.shadow.camera.bottom = -18;
+  scene.add(sun);
 
-        const components = [];
+  const fill = new THREE.DirectionalLight(0xbfd9ff, 0.75);
+  fill.position.set(-12, 5, -8);
+  scene.add(fill);
 
-        function addComponent(mesh, type, constructionOrder) {
-            mesh.userData = { 
-                type: type, 
-                order: constructionOrder,
-                originalPosition: mesh.position.clone(),
-                originalScale: mesh.scale.clone()
-            };
-            components.push(mesh);
-            buildingGroup.add(mesh);
-        }
+  const texture = makeWeatherTexture();
+  const palette = {
+    stone: new THREE.Color(0x817a6e),
+    column: new THREE.Color(0xb66531),
+    beam: new THREE.Color(0x7a4728),
+    bracket: new THREE.Color(0xd2a34f),
+    beam2: new THREE.Color(0x95552f),
+    purlin: new THREE.Color(0xb8723e),
+    roof: new THREE.Color(0x293640),
+    ridge: new THREE.Color(0xb7a16a),
+    joint: new THREE.Color(0x4e8c79)
+  };
 
-        // Build the structure
-        function buildStructure() {
-            // Foundation/Platform
-            const platformGeometry = new THREE.BoxGeometry(16, 1, 12);
-            const platform = new THREE.Mesh(platformGeometry, materials.stone);
-            platform.position.y = -0.5;
-            platform.castShadow = true;
-            platform.receiveShadow = true;
-            addComponent(platform, 'foundation', 0);
+  const materials = {};
+  Object.entries(palette).forEach(([key, color]) => {
+    materials[key] = new THREE.MeshStandardMaterial({
+      color: color.clone(),
+      roughness: 0.64,
+      metalness: 0.03,
+      map: key === "stone" || key === "roof" ? null : texture
+    });
+    materials[key].userData.baseColor = color.clone();
+  });
 
-            // Stone bases for columns
-            const basePositions = [
-                [-6, -6], [-2, -6], [2, -6], [6, -6],
-                [-6, 0], [-2, 0], [2, 0], [6, 0],
-                [-6, 6], [-2, 6], [2, 6], [6, 6]
-            ];
+  const xrayMaterial = new THREE.MeshStandardMaterial({
+    color: 0xdff8ff,
+    transparent: true,
+    opacity: 0.22,
+    roughness: 0.2,
+    metalness: 0,
+    depthWrite: false
+  });
 
-            basePositions.forEach(([x, z]) => {
-                const base = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.8, 0.3, 0.8),
-                    materials.stone
-                );
-                base.position.set(x, 0.15, z);
-                base.castShadow = true;
-                addComponent(base, 'foundation', 0);
-            });
+  const guideMaterial = new THREE.MeshStandardMaterial({
+    color: palette.joint,
+    transparent: true,
+    opacity: 0.2,
+    roughness: 0.35,
+    emissive: new THREE.Color(0x183a31),
+    emissiveIntensity: 0.8
+  });
 
-            // Columns with entasis (tapering)
-            basePositions.forEach(([x, z], i) => {
-                const height = 8;
-                const topRadius = 0.25;
-                const bottomRadius = 0.32;
-                
-                const column = new THREE.Mesh(
-                    new THREE.CylinderGeometry(topRadius, bottomRadius, height, 16),
-                    materials.wood.clone()
-                );
-                column.position.set(x, height / 2 + 0.3, z);
-                column.castShadow = true;
-                column.receiveShadow = true;
-                
-                // Add paint decoration to capital
-                if (i < 8) {
-                    const capital = new THREE.Mesh(
-                        new THREE.BoxGeometry(0.7, 0.4, 0.7),
-                        materials.paintRed
-                    );
-                    capital.position.set(x, height + 0.3, z);
-                    capital.castShadow = true;
-                    addComponent(capital, 'column', 1);
-                }
-                
-                addComponent(column, 'column', 1);
-            });
+  const floor = new THREE.Mesh(
+    new THREE.CylinderGeometry(9.7, 10.2, 0.35, 8),
+    new THREE.MeshStandardMaterial({ color: 0xbdb19b, roughness: 0.88 })
+  );
+  floor.position.y = -0.25;
+  floor.rotation.y = Math.PI / 8;
+  floor.receiveShadow = true;
+  scene.add(floor);
 
-            // Horizontal beams (Liang)
-            // Front and back beams
-            [-6, 6].forEach(z => {
-                const beam = new THREE.Mesh(
-                    new THREE.BoxGeometry(14, 0.5, 0.4),
-                    materials.woodDark
-                );
-                beam.position.set(0, 7, z);
-                beam.castShadow = true;
-                addComponent(beam, 'beam', 2);
-            });
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(120, 120),
+    new THREE.ShadowMaterial({ color: 0x000000, opacity: 0.13 })
+  );
+  ground.rotation.x = -Math.PI / 2;
+  ground.position.y = -0.46;
+  ground.receiveShadow = true;
+  scene.add(ground);
 
-            // Side beams
-            [-6, 6].forEach(x => {
-                const beam = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.4, 0.5, 12),
-                    materials.woodDark
-                );
-                beam.position.set(x, 7, 0);
-                beam.castShadow = true;
-                addComponent(beam, 'beam', 2);
-            });
+  const model = new THREE.Group();
+  model.position.set(2.2, -0.2, 0);
+  scene.add(model);
 
-            // Cross beams
-            [-2, 2].forEach(x => {
-                const beam = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.4, 0.5, 12),
-                    materials.woodDark
-                );
-                beam.position.set(x, 7, 0);
-                beam.castShadow = true;
-                addComponent(beam, 'beam', 2);
-            });
+  const components = [];
+  const labeled = [];
+  let xray = false;
+  let labelsVisible = true;
 
-            // Tie beams (Fang) at mid-height
-            [-6, 6].forEach(z => {
-                const tie = new THREE.Mesh(
-                    new THREE.BoxGeometry(13, 0.3, 0.25),
-                    materials.wood
-                );
-                tie.position.set(0, 4, z);
-                tie.castShadow = true;
-                addComponent(tie, 'fang', 2);
-            });
+  const phases = [
+    { at: 0, name: "Laid out · 放樣", ruler: "layout", note: "The hall is pulled apart as a measured timber kit: bases, shafts, beams, brackets, and roof members are separated." },
+    { at: 18, name: "Column grid · 立柱", ruler: "column grid", note: "Stone bases and columns settle first, establishing the bay rhythm and load paths." },
+    { at: 38, name: "Beam frame · 額枋", ruler: "tie beams", note: "Tie beams and architraves lock the column tops into a rectangular timber frame." },
+    { at: 58, name: "Dougong seated · 斗栱", ruler: "brackets", note: "Bracket sets stack outward to transfer roof weight and reveal the modular Yingzao Fashi grammar." },
+    { at: 78, name: "Rafters raised · 梁桁椽", ruler: "rafters", note: "Cross beams, purlins, and rafters pitch upward into the broad roof silhouette." },
+    { at: 100, name: "Roof complete · 落成", ruler: "roof complete", note: "All timber layers are seated: columns, beams, bracket sets, rafters, tiles, and ridge." }
+  ];
 
-            // Dougong brackets (simplified representation)
-            const dougongPositions = [
-                [-6, -6], [-2, -6], [2, -6], [6, -6],
-                [-6, 6], [-2, 6], [2, 6], [6, 6],
-                [-6, 0], [6, 0]
-            ];
+  function makeWeatherTexture() {
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#b8793d";
+    ctx.fillRect(0, 0, 256, 256);
+    for (let i = 0; i < 160; i += 1) {
+      const x = Math.random() * 256;
+      const alpha = 0.05 + Math.random() * 0.13;
+      ctx.fillStyle = `rgba(45, 25, 12, ${alpha})`;
+      ctx.fillRect(x, 0, 1 + Math.random() * 4, 256);
+    }
+    for (let y = 0; y < 256; y += 14) {
+      ctx.fillStyle = "rgba(255, 228, 160, 0.06)";
+      ctx.fillRect(0, y + Math.random() * 4, 256, 2);
+    }
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(1.8, 1.1);
+    return tex;
+  }
 
-            dougongPositions.forEach(([x, z]) => {
-                // Base block (Dou)
-                const dou = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.8, 0.3, 0.8),
-                    materials.dougong
-                );
-                dou.position.set(x, 8.6, z);
-                dou.castShadow = true;
-                addComponent(dou, 'dougong', 3);
+  function ease(t) {
+    return t * t * (3 - 2 * t);
+  }
 
-                // Arms (Gong) - simplified as crossed beams
-                for (let i = 0; i < 3; i++) {
-                    const arm1 = new THREE.Mesh(
-                        new THREE.BoxGeometry(1.2 + i * 0.4, 0.15, 0.15),
-                        materials.dougong
-                    );
-                    arm1.position.set(x, 8.9 + i * 0.25, z);
-                    arm1.castShadow = true;
-                    addComponent(arm1, 'dougong', 3);
+  function materialFor(name) {
+    return materials[name];
+  }
 
-                    const arm2 = new THREE.Mesh(
-                        new THREE.BoxGeometry(0.15, 0.15, 1.2 + i * 0.4),
-                        materials.dougong
-                    );
-                    arm2.position.set(x, 8.9 + i * 0.25, z);
-                    arm2.castShadow = true;
-                    addComponent(arm2, 'dougong', 3);
-                }
-            });
+  function addPart(mesh, options) {
+    const part = {
+      mesh,
+      phase: options.phase,
+      labelKey: options.labelKey || null,
+      assembled: options.position.clone(),
+      exploded: options.exploded.clone(),
+      rotation: mesh.rotation.clone(),
+      explodedRotation: options.explodedRotation || mesh.rotation.clone(),
+      name: options.name,
+      zh: options.zh,
+      note: options.note,
+      baseMaterial: mesh.material
+    };
+    mesh.position.copy(part.assembled);
+    mesh.userData.part = part;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    model.add(mesh);
+    components.push(part);
 
-            // Purlins (Lin)
-            const purlinY = 10;
-            [-6, 6].forEach(z => {
-                const purlin = new THREE.Mesh(
-                    new THREE.BoxGeometry(14, 0.35, 0.25),
-                    materials.wood
-                );
-                purlin.position.set(0, purlinY, z);
-                purlin.castShadow = true;
-                addComponent(purlin, 'purlin', 4);
-            });
+    if (options.labelKey) {
+      const label = document.createElement("div");
+      label.className = "tag";
+      label.innerHTML = `<span class="zh">${options.zh}</span><span class="en">${options.name}</span>`;
+      labelLayer.appendChild(label);
+      part.label = label;
+      labeled.push(part);
+    }
+    return part;
+  }
 
-            [-6, 6].forEach(x => {
-                const purlin = new THREE.Mesh(
-                    new THREE.BoxGeometry(0.25, 0.35, 12),
-                    materials.wood
-                );
-                purlin.position.set(x, purlinY, 0);
-                purlin.castShadow = true;
-                addComponent(purlin, 'purlin', 4);
-            });
+  function box(width, height, depth, material) {
+    return new THREE.Mesh(new THREE.BoxGeometry(width, height, depth), material);
+  }
 
-            // Ridge purlin
-            const ridgePurlin = new THREE.Mesh(
-                new THREE.BoxGeometry(14, 0.4, 0.3),
-                materials.woodDark
-            );
-            ridgePurlin.position.set(0, 11, 0);
-            ridgePurlin.castShadow = true;
-            addComponent(ridgePurlin, 'purlin', 4);
+  function cylinder(radius, height, material, radial = 24) {
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, height, radial), material);
+    return mesh;
+  }
 
-            // Rafters (Chuan) - simplified as angled planes
-            const rafterCount = 12;
-            for (let i = 0; i <= rafterCount; i++) {
-                const t = i / rafterCount;
-                const z = -6 + t * 12;
-                const height = 10 + Math.sin(Math.acos(Math.abs(t - 0.5) * 2)) * 3;
-                
-                // Side rafters
-                [-6, 6].forEach(x => {
-                    const rafter = new THREE.Mesh(
-                        new THREE.BoxGeometry(0.1, 0.1, 0.8),
-                        materials.wood
-                    );
-                    rafter.position.set(x, height, z);
-                    rafter.rotation.x = (t - 0.5) * 0.8;
-                    rafter.castShadow = true;
-                    addComponent(rafter, 'rafter', 4);
-                });
-            }
-
-            // Roof structure
-            // Main roof planes
-            const roofGeometry = new THREE.ConeGeometry(10, 5, 4);
-            const roof = new THREE.Mesh(roofGeometry, materials.roof);
-            roof.position.y = 12;
-            roof.rotation.y = Math.PI / 4;
-            roof.scale.set(1.4, 0.6, 1);
-            roof.castShadow = true;
-            addComponent(roof, 'roof', 5);
-
-            // Roof tiles detail
-            for (let row = 0; row < 8; row++) {
-                const z = -5 + row * 1.4;
-                const height = 11.5 + (4 - Math.abs(row - 3.5)) * 0.3;
-                
-                const tileRow = new THREE.Mesh(
-                    new THREE.BoxGeometry(13, 0.15, 1.2),
-                    materials.roofTile
-                );
-                tileRow.position.set(0, height, z);
-                tileRow.castShadow = true;
-                addComponent(tileRow, 'roof', 5);
-            }
-
-            // Ridge tiles
-            const ridge = new THREE.Mesh(
-                new THREE.BoxGeometry(14, 0.4, 0.5),
-                materials.roofTile
-            );
-            ridge.position.set(0, 13.5, 0);
-            ridge.castShadow = true;
-            addComponent(ridge, 'roof', 5);
-
-            // Decorative ornaments
-            [-6, 6].forEach(z => {
-                const ornament = new THREE.Mesh(
-                    new THREE.SphereGeometry(0.4, 8, 8),
-                    materials.paintGold
-                );
-                ornament.position.set(0, 14, z);
-                ornament.castShadow = true;
-                addComponent(ornament, 'roof', 5);
-            });
-        }
-
-        buildStructure();
-
-        // Ground plane
-        const groundGeometry = new THREE.PlaneGeometry(100, 100);
-        const groundMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x1a1a2e,
-            roughness: 1
-        });
-        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.y = -1;
-        ground.receiveShadow = true;
-        scene.add(ground);
-
-        // Grid helper
-        const gridHelper = new THREE.GridHelper(60, 60, 0x333344, 0x1a1a2e);
-        gridHelper.position.y = -0.99;
-        scene.add(gridHelper);
-
-        // State
-        let state = {
-            assemblyProgress: 100,
-            weathering: 0,
-            xrayMode: false,
-            autoRotate: false,
-            exploded: false
-        };
-
-        // Update functions
-        function updateAssembly() {
-            const threshold = state.assemblyProgress / 100 * 5;
-            
-            components.forEach(comp => {
-                const order = comp.userData.order;
-                const targetY = comp.userData.originalPosition.y;
-                
-                if (order <= threshold) {
-                    comp.visible = true;
-                    const delay = (5 - order) * 0.2;
-                    const progress = Math.max(0, Math.min(1, (threshold - order) / 0.5));
-                    comp.position.y = targetY - (1 - progress) * 20;
-                    comp.scale.copy(comp.userData.originalScale);
-                } else {
-                    comp.visible = false;
-                }
-            });
-
-            // Update progress UI
-            document.getElementById('progressFill').style.width = state.assemblyProgress + '%';
-            
-            // Update construction steps
-            const currentStep = Math.ceil(threshold);
-            document.querySelectorAll('.order-step').forEach(step => {
-                const stepNum = parseInt(step.dataset.step);
-                step.classList.toggle('active', stepNum <= currentStep && currentStep > 0);
-            });
-        }
-
-        function updateWeathering() {
-            const intensity = state.weathering / 100;
-            
-            components.forEach(comp => {
-                const type = comp.userData.type;
-                let baseMat = materials.wood;
-                
-                switch(type) {
-                    case 'wood': baseMat = materials.wood; break;
-                    case 'column': baseMat = materials.wood; break;
-                    case 'beam': baseMat = materials.woodDark; break;
-                    case 'dougong': baseMat = materials.dougong; break;
-                    case 'roof': baseMat = materials.roof; break;
-                    case 'roofTile': baseMat = materials.roofTile; break;
-                }
-                
-                if (intensity > 0) {
-                    comp.material = getWeatheredMaterial(baseMat, intensity);
-                } else {
-                    comp.material = baseMat;
-                }
-            });
-        }
-
-        function updateXray() {
-            components.forEach(comp => {
-                if (state.xrayMode) {
-                    if (['column', 'beam', 'fang', 'purlin'].includes(comp.userData.type)) {
-                        comp.material = materials.transparent;
-                    }
-                } else {
-                    updateWeathering();
-                }
-            });
-        }
-
-        function updateExploded() {
-            if (state.exploded) {
-                components.forEach(comp => {
-                    const order = comp.userData.order;
-                    const dir = comp.userData.originalPosition.clone().normalize();
-                    const expansion = order * 2;
-                    comp.position.copy(comp.userData.originalPosition).add(dir.multiplyScalar(expansion));
-                });
-            } else {
-                components.forEach(comp => {
-                    comp.position.x = comp.userData.originalPosition.x;
-                    comp.position.z = comp.userData.originalPosition.z;
-                });
-                updateAssembly();
-            }
-        }
-
-        // Event listeners
-        document.getElementById('assemblySlider').addEventListener('input', (e) => {
-            state.assemblyProgress = parseInt(e.target.value);
-            document.getElementById('assemblyValue').textContent = state.assemblyProgress + '%';
-            state.exploded = false;
-            document.getElementById('explodeBtn').classList.remove('active');
-            updateAssembly();
+  function addStoneBases() {
+    const xs = [-5.1, -1.7, 1.7, 5.1];
+    const zs = [-2.9, 2.9];
+    xs.forEach((x, ix) => {
+      zs.forEach((z, iz) => {
+        const base = cylinder(0.43, 0.32, materialFor("stone"), 32);
+        addPart(base, {
+          phase: 1,
+          position: new THREE.Vector3(x, 0, z),
+          exploded: new THREE.Vector3(x * 1.25, -0.05, z * 1.65 + (iz ? 4.5 : -4.5)),
+          name: "stone base",
+          zh: "柱礎",
+          note: "Stone plinth spreading column load."
         });
 
-        document.getElementById('weatheringSlider').addEventListener('input', (e) => {
-            state.weathering = parseInt(e.target.value);
-            document.getElementById('weatheringValue').textContent = state.weathering + '%';
-            updateWeathering();
+        const shaft = cylinder(0.22, 4.1, materialFor("column"), 24);
+        shaft.position.y = 2.2;
+        addPart(shaft, {
+          phase: 1,
+          labelKey: ix === 0 && iz === 1 ? "columns" : null,
+          position: new THREE.Vector3(x, 2.2, z),
+          exploded: new THREE.Vector3(x * 1.22, 1.9, z * 1.58 + (iz ? 3.8 : -3.8)),
+          name: "columns",
+          zh: "柱",
+          note: "Vertical timber supports defining the bay rhythm."
         });
+      });
+    });
+  }
 
-        document.getElementById('xrayBtn').addEventListener('click', (e) => {
-            state.xrayMode = !state.xrayMode;
-            e.target.classList.toggle('active', state.xrayMode);
-            updateXray();
+  function addBeamFrame() {
+    const zRows = [-2.9, 2.9];
+    zRows.forEach((z, row) => {
+      const frontBeam = box(10.8, 0.34, 0.42, materialFor("beam"));
+      addPart(frontBeam, {
+        phase: 2,
+        labelKey: row === 0 ? "architraves" : null,
+        position: new THREE.Vector3(0, 4.35, z),
+        exploded: new THREE.Vector3(row ? 7.8 : -7.8, 4.1, z * 1.35),
+        name: "tie beam",
+        zh: "額枋",
+        note: "Longitudinal beam tying the column tops."
+      });
+    });
+
+    [-5.1, -1.7, 1.7, 5.1].forEach((x, i) => {
+      const crossBeam = box(0.38, 0.32, 6.5, materialFor("beam"));
+      addPart(crossBeam, {
+        phase: 2,
+        position: new THREE.Vector3(x, 4.55, 0),
+        exploded: new THREE.Vector3(x * 1.45, 4.2 + (i % 2) * 0.6, i < 2 ? -7.4 : 7.4),
+        name: "cross tie",
+        zh: "闌額",
+        note: "Transverse tie beam joining front and rear frames."
+      });
+    });
+  }
+
+  function addDougong() {
+    const xs = [-5.1, -1.7, 1.7, 5.1];
+    const zs = [-2.9, 2.9];
+    xs.forEach((x, ix) => {
+      zs.forEach((z, iz) => {
+        const offsets = [
+          { s: [0.78, 0.22, 0.36], y: 4.8, rz: false },
+          { s: [0.34, 0.24, 0.92], y: 5.08, rz: true },
+          { s: [1.05, 0.2, 0.26], y: 5.36, rz: false },
+          { s: [0.26, 0.19, 1.18], y: 5.62, rz: true }
+        ];
+        offsets.forEach((cfg, level) => {
+          const bracket = box(cfg.s[0], cfg.s[1], cfg.s[2], materialFor("bracket"));
+          addPart(bracket, {
+            phase: 3,
+            labelKey: ix === 2 && iz === 1 && level === 2 ? "dougong" : null,
+            position: new THREE.Vector3(x, cfg.y, z),
+            exploded: new THREE.Vector3(x * 1.42 + (cfg.rz ? 0.7 : -0.7), cfg.y + 1.4 + level * 0.18, z * 1.58 + (iz ? 3.1 : -3.1)),
+            explodedRotation: new THREE.Euler(0, cfg.rz ? 0.28 : -0.18, 0),
+            name: "dougong bracket",
+            zh: "斗栱",
+            note: "Stacked blocks and arms stepping outward below roof loads."
+          });
         });
+      });
+    });
+  }
 
-        document.getElementById('rotateBtn').addEventListener('click', (e) => {
-            state.autoRotate = !state.autoRotate;
-            e.target.classList.toggle('active', state.autoRotate);
-            controls.autoRotate = state.autoRotate;
+  function addRoofFrame() {
+    [-4.4, 0, 4.4].forEach((x, i) => {
+      const beam = box(0.42, 0.46, 7.4, materialFor("beam2"));
+      addPart(beam, {
+        phase: 4,
+        labelKey: i === 1 ? "beam" : null,
+        position: new THREE.Vector3(x, 6.05, 0),
+        exploded: new THREE.Vector3(x * 1.2, 7.2 + i * 0.32, i === 1 ? 0 : (i === 0 ? -8.2 : 8.2)),
+        name: "main beam",
+        zh: "梁",
+        note: "Primary cross beam receiving the roof frame."
+      });
+    });
+
+    const purlinYs = [6.25, 6.95, 7.65];
+    const purlinZs = [-3.7, 0, 3.7];
+    purlinZs.forEach((z, i) => {
+      const purlin = cylinder(0.16, 10.9, materialFor("purlin"), 18);
+      purlin.rotation.z = Math.PI / 2;
+      addPart(purlin, {
+        phase: 4,
+        labelKey: i === 2 ? "purlin" : null,
+        position: new THREE.Vector3(0, purlinYs[i], z),
+        exploded: new THREE.Vector3(i === 1 ? 0 : (i === 0 ? -6.4 : 6.4), purlinYs[i] + 2.2, z * 1.5),
+        explodedRotation: new THREE.Euler(0.25, 0, Math.PI / 2),
+        name: "purlin and rafters",
+        zh: "桁椽",
+        note: "Horizontal purlins and repeating rafters form the roof pitch."
+      });
+    });
+
+    for (let i = 0; i < 18; i += 1) {
+      const x = -5.1 + i * 0.6;
+      [-1, 1].forEach((side) => {
+        const rafter = box(0.07, 0.08, 4.65, materialFor("purlin"));
+        rafter.rotation.x = side * 0.42;
+        addPart(rafter, {
+          phase: 4,
+          position: new THREE.Vector3(x, 7.0, side * 2.05),
+          exploded: new THREE.Vector3(x * 1.18, 8.7 + (i % 3) * 0.08, side * 8.3),
+          explodedRotation: new THREE.Euler(side * 0.72, 0, 0.12),
+          name: "rafter",
+          zh: "椽",
+          note: "Slender repeated roof members."
         });
+      });
+    }
+  }
 
-        document.getElementById('explodeBtn').addEventListener('click', (e) => {
-            state.exploded = !state.exploded;
-            e.target.classList.toggle('active', state.exploded);
-            updateExploded();
+  function roofPlane(name, width, depth, side, labelKey) {
+    const geometry = new THREE.BoxGeometry(width, 0.18, depth);
+    const roof = new THREE.Mesh(geometry, materialFor("roof"));
+    roof.rotation.x = side * 0.42;
+    addPart(roof, {
+      phase: 5,
+      labelKey,
+      position: new THREE.Vector3(0, 7.42, side * 2.15),
+      exploded: new THREE.Vector3(side < 0 ? -6.6 : 6.6, 10.6, side * 8.5),
+      explodedRotation: new THREE.Euler(side * 0.72, side * 0.18, side * 0.05),
+      name,
+      zh: "瓦面",
+      note: "Dark tiled roof plane with wide eaves."
+    });
+  }
+
+  function addRoofSkin() {
+    roofPlane("roof tiles", 12.7, 5.05, -1, "roof");
+    roofPlane("roof tiles", 12.7, 5.05, 1, null);
+
+    const ridge = cylinder(0.18, 11.8, materialFor("ridge"), 18);
+    ridge.rotation.z = Math.PI / 2;
+    addPart(ridge, {
+      phase: 5,
+      labelKey: "ridge",
+      position: new THREE.Vector3(0, 8.54, 0),
+      exploded: new THREE.Vector3(0, 11.8, 0),
+      explodedRotation: new THREE.Euler(0, 0.18, Math.PI / 2),
+      name: "ridge cap",
+      zh: "正脊",
+      note: "Final ridge member pinning the two roof slopes."
+    });
+
+    [-1, 1].forEach((side) => {
+      const eave = cylinder(0.12, 12.9, materialFor("ridge"), 18);
+      eave.rotation.z = Math.PI / 2;
+      addPart(eave, {
+        phase: 5,
+        position: new THREE.Vector3(0, 6.33, side * 4.58),
+        exploded: new THREE.Vector3(0, 9.9, side * 9.8),
+        explodedRotation: new THREE.Euler(0.18 * side, 0, Math.PI / 2),
+        name: "eave roll",
+        zh: "檐",
+        note: "Rounded eave edge with a slight upturned silhouette."
+      });
+    });
+  }
+
+  function addJoineryGuides() {
+    [-5.1, -1.7, 1.7, 5.1].forEach((x) => {
+      [-2.9, 2.9].forEach((z) => {
+        const tenon = box(0.14, 1.7, 0.14, guideMaterial);
+        addPart(tenon, {
+          phase: 2,
+          labelKey: x === -1.7 && z === -2.9 ? "joinery" : null,
+          position: new THREE.Vector3(x, 4.58, z),
+          exploded: new THREE.Vector3(x * 1.35, 5.65, z * 1.48),
+          name: "mortise-tenon guide",
+          zh: "榫卯",
+          note: "X-ray guide marking concealed joinery through the frame."
         });
+      });
+    });
+  }
 
-        document.getElementById('uploadArea').addEventListener('click', () => {
-            document.getElementById('photoUpload').click();
-        });
+  addStoneBases();
+  addBeamFrame();
+  addDougong();
+  addRoofFrame();
+  addRoofSkin();
+  addJoineryGuides();
 
-        document.getElementById('photoUpload').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                document.querySelector('.upload-text').innerHTML = 
-                    `<span>✓</span> ${file.name}<br><small>Analyzing architectural features...</small>`;
-                setTimeout(() => {
-                    document.querySelector('.upload-text').innerHTML = 
-                        `<span>✓</span> Analysis complete<br><small>Loaded: Tang-style Hall (Foguang Temple type)</small>`;
-                }, 1500);
-            }
-        });
+  const axes = new THREE.Group();
+  const axisMaterial = new THREE.LineBasicMaterial({ color: 0x2b3432, transparent: true, opacity: 0.28 });
+  for (let x = -6; x <= 6; x += 3) {
+    const points = [new THREE.Vector3(x, -0.05, -5.5), new THREE.Vector3(x, -0.05, 5.5)];
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), axisMaterial);
+    axes.add(line);
+  }
+  for (let z = -5; z <= 5; z += 2.5) {
+    const points = [new THREE.Vector3(-6.4, -0.04, z), new THREE.Vector3(6.4, -0.04, z)];
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), axisMaterial);
+    axes.add(line);
+  }
+  scene.add(axes);
+  axes.position.copy(model.position);
 
-        // Raycaster for tooltips
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        const tooltip = document.getElementById('tooltip');
+  function setWeather(amount) {
+    document.documentElement.style.setProperty("--weather", (amount * 0.82).toFixed(3));
+    Object.values(materials).forEach((mat) => {
+      const base = mat.userData.baseColor;
+      const aged = base.clone().lerp(new THREE.Color(0x5f5b4e), amount * 0.62);
+      const darken = keyFromMaterial(mat) === "roof" ? 0.3 : 0;
+      mat.color.copy(aged.lerp(new THREE.Color(0x222827), amount * darken));
+      mat.roughness = 0.58 + amount * 0.34;
+    });
+  }
 
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  function keyFromMaterial(mat) {
+    const pair = Object.entries(materials).find(([, value]) => value === mat);
+    return pair ? pair[0] : "";
+  }
 
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(components);
+  function setXray(enabled) {
+    xray = enabled;
+    components.forEach((part) => {
+      if (part.baseMaterial === guideMaterial) {
+        part.mesh.visible = enabled;
+        part.mesh.material = guideMaterial;
+      } else {
+        part.mesh.material = enabled ? xrayMaterial : part.baseMaterial;
+      }
+    });
+    xrayButton.setAttribute("aria-pressed", String(enabled));
+  }
 
-            if (intersects.length > 0) {
-                const comp = intersects[0].object;
-                const type = comp.userData.type;
-                const data = componentData[type];
-                
-                if (data) {
-                    document.getElementById('tooltipTitle').textContent = data.name;
-                    document.getElementById('tooltipDesc').textContent = data.description;
-                    tooltip.style.left = e.clientX + 15 + 'px';
-                    tooltip.style.top = e.clientY + 15 + 'px';
-                    tooltip.classList.add('visible');
-                }
-            } else {
-                tooltip.classList.remove('visible');
-            }
-        });
+  function thresholdFor(phase) {
+    return [0, 18, 38, 58, 78, 94][phase] || 100;
+  }
 
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+  function updateAssembly() {
+    const progress = Number(assemblySlider.value) / 100;
+    const pct = Math.round(progress * 100);
+    assemblyOut.textContent = `${pct}%`;
+    rulerProgress.style.transform = `scaleX(${progress})`;
 
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
-        }
+    components.forEach((part) => {
+      const start = thresholdFor(part.phase - 1) / 100;
+      const end = thresholdFor(part.phase) / 100;
+      const local = THREE.MathUtils.clamp((progress - start) / Math.max(end - start, 0.001), 0, 1);
+      const t = ease(local);
+      part.mesh.position.lerpVectors(part.exploded, part.assembled, t);
+      part.mesh.rotation.x = THREE.MathUtils.lerp(part.explodedRotation.x, part.rotation.x, t);
+      part.mesh.rotation.y = THREE.MathUtils.lerp(part.explodedRotation.y, part.rotation.y, t);
+      part.mesh.rotation.z = THREE.MathUtils.lerp(part.explodedRotation.z, part.rotation.z, t);
+      part.mesh.scale.setScalar(0.72 + t * 0.28);
+      part.mesh.visible = local > 0.02 || progress < 0.08 || part.baseMaterial === guideMaterial;
+      if (part.baseMaterial === guideMaterial && !xray) {
+        part.mesh.visible = false;
+      }
+    });
 
-        animate();
+    const phase = phases.reduce((current, item) => pct >= item.at ? item : current, phases[0]);
+    phaseName.textContent = phase.name;
+    phaseNote.textContent = phase.note;
+    rulerPhase.textContent = phase.ruler;
+  }
 
-        // Initial update
-        updateAssembly();
-    </script>
+  function updateLabels() {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    leaderLayer.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    leaderLayer.setAttribute("width", width);
+    leaderLayer.setAttribute("height", height);
+    leaderLayer.innerHTML = "";
+
+    labeled.forEach((part, index) => {
+      const pos = new THREE.Vector3();
+      part.mesh.getWorldPosition(pos);
+      pos.y += 0.42;
+      pos.project(camera);
+      const x = (pos.x * 0.5 + 0.5) * width;
+      const y = (-pos.y * 0.5 + 0.5) * height;
+      const offX = index % 2 === 0 ? 118 : -122;
+      const offY = -34 + (index % 3) * 28;
+      const visible = labelsVisible && pos.z < 1 && part.mesh.visible;
+
+      let labelX = x + offX;
+      let labelY = y + offY;
+      const titleGuard = Math.min(440, width * 0.38);
+      if (labelX < titleGuard && labelY < 250) {
+        labelX = titleGuard + (index % 2) * 42;
+        labelY = Math.max(108, labelY + 26 + (index % 3) * 14);
+      }
+      const ledgerGuard = width - 330;
+      if (labelX > ledgerGuard && labelY < 470) {
+        labelX = ledgerGuard - (index % 2) * 38;
+        labelY += 12;
+      }
+
+      part.label.style.left = `${labelX}px`;
+      part.label.style.top = `${labelY}px`;
+      part.label.classList.toggle("hidden", !visible);
+
+      if (visible) {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        line.setAttribute("d", `M ${x.toFixed(1)} ${y.toFixed(1)} C ${(x + (labelX - x) * 0.35).toFixed(1)} ${(y + (labelY - y) * 0.15).toFixed(1)}, ${(x + (labelX - x) * 0.65).toFixed(1)} ${(y + (labelY - y) * 0.82).toFixed(1)}, ${(labelX - 18).toFixed(1)} ${labelY.toFixed(1)}`);
+        line.setAttribute("fill", "none");
+        line.setAttribute("stroke", "rgba(31,37,36,0.42)");
+        line.setAttribute("stroke-width", "1.2");
+        line.setAttribute("stroke-dasharray", "4 4");
+        leaderLayer.appendChild(line);
+
+        const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        dot.setAttribute("cx", x.toFixed(1));
+        dot.setAttribute("cy", y.toFixed(1));
+        dot.setAttribute("r", "3.5");
+        dot.setAttribute("fill", "#a74632");
+        leaderLayer.appendChild(dot);
+      }
+    });
+  }
+
+  assemblySlider.addEventListener("input", updateAssembly);
+  ageSlider.addEventListener("input", () => {
+    const amount = Number(ageSlider.value) / 100;
+    ageOut.textContent = `${Math.round(amount * 900)} years`;
+    setWeather(amount);
+  });
+
+  xrayButton.addEventListener("click", () => {
+    setXray(!xray);
+    updateAssembly();
+  });
+
+  labelButton.addEventListener("click", () => {
+    labelsVisible = !labelsVisible;
+    labelButton.setAttribute("aria-pressed", String(labelsVisible));
+    updateLabels();
+  });
+
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    updateLabels();
+  });
+
+  updateAssembly();
+  setWeather(0);
+  setXray(false);
+
+  function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    model.rotation.y += 0.0012;
+    axes.rotation.y = model.rotation.y;
+    renderer.render(scene, camera);
+    updateLabels();
+  }
+
+  animate();
+})();
+</script>
 </body>
 </html>
