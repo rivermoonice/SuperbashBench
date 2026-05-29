@@ -56,9 +56,31 @@ const models = {
             { icon: ICONS.wand, title: 'Agentic Reasoning', desc: '84% on Online-Mind2Web and the only model to complete every Super-Agent case end-to-end — strong long-horizon tool use.' },
         ],
     },
+    'gpt-5-5': {
+        name: 'GPT 5.5',
+        tag: 'GPT 5.5',
+        blogUrl: 'https://openai.com',
+        blogLabel: 'Learn about OpenAI →',
+        heroSubtitle: 'GPT 5.5 &mdash; OpenAI-labeled builds created for this local showcase.',
+        badge: 'GPT 5.5',
+        heading: 'Agent-Team Build Lane',
+        subtitle: 'A GPT 5.5-labeled set of the same seven prompts, added as a third comparison track in this workspace.',
+        stats: [
+            { target: 7, suffix: '', label: 'Projects Built' },
+            { target: 100, suffix: '%', label: 'Prompt Coverage' },
+            { target: 3, suffix: '', label: 'Model Lanes' },
+            { target: 1, suffix: '', label: 'Agent Team Run' },
+        ],
+        features: [
+            { icon: ICONS.network, title: 'Agent-Team Assembly', desc: 'The project set is split into coordinated work scopes, then integrated into the central showcase registry.' },
+            { icon: ICONS.layers, title: 'Standalone Builds', desc: 'Every GPT 5.5 project keeps the single-file HTML format used by the existing benchmark builds.' },
+            { icon: ICONS.wand, title: 'Visible Attribution', desc: 'Each project includes a clear GPT 5.5 label inside the experience, plus links from the prompt archive.' },
+            { icon: ICONS.gauge, title: 'Full Comparison Track', desc: 'The page-level switch re-points every project card to the GPT 5.5 folder for direct side-by-side review.' },
+        ],
+    },
 };
 
-const MODEL_ORDER = ['kimi-k2-6', 'opus-4-8'];
+const MODEL_ORDER = ['kimi-k2-6', 'opus-4-8', 'gpt-5-5'];
 const DEFAULT_MODEL = 'kimi-k2-6';
 
 // ====================================================================
@@ -70,49 +92,49 @@ const projects = [
         name: 'Yingzao Fashi',
         description: 'Interactive 3D disassembly of Chinese ancient timber architecture. Features assembly animation, weathering effects, and X-ray structural view.',
         icon: '🏯',
-        folder: { 'kimi-k2-6': './yingzao-fashi', 'opus-4-8': './opus-4-8/yingzao-fashi' },
+        folder: { 'kimi-k2-6': './yingzao-fashi', 'opus-4-8': './opus-4-8/yingzao-fashi', 'gpt-5-5': './gpt-5-5/yingzao-fashi' },
     },
     {
         id: 'space-shooter',
         name: 'Neon Drift',
         description: 'Futuristic space shooter with physics-based movement, particle effects, combo system, and wave-based enemy spawning.',
         icon: '🚀',
-        folder: { 'kimi-k2-6': './space-shooter', 'opus-4-8': './opus-4-8/space-shooter' },
+        folder: { 'kimi-k2-6': './space-shooter', 'opus-4-8': './opus-4-8/space-shooter', 'gpt-5-5': './gpt-5-5/space-shooter' },
     },
     {
         id: 'voxel-world',
         name: 'Voxel World',
         description: 'Minecraft-inspired sandbox with procedural terrain generation, block mining/placing, and basic crafting system.',
         icon: '🧊',
-        folder: { 'kimi-k2-6': './voxel-world', 'opus-4-8': './opus-4-8/voxel-world' },
+        folder: { 'kimi-k2-6': './voxel-world', 'opus-4-8': './opus-4-8/voxel-world', 'gpt-5-5': './gpt-5-5/voxel-world' },
     },
     {
         id: 'kanban',
         name: 'Kanban Board',
         description: 'Professional drag-and-drop kanban board for project management. Features task priorities, tags, assignees, and persistent localStorage.',
         icon: '📋',
-        folder: { 'kimi-k2-6': './kanban', 'opus-4-8': './opus-4-8/kanban' },
+        folder: { 'kimi-k2-6': './kanban', 'opus-4-8': './opus-4-8/kanban', 'gpt-5-5': './gpt-5-5/kanban' },
     },
     {
         id: 'crypto-dashboard',
         name: 'Crypto Intelligence',
         description: 'Real-time cryptocurrency dashboard with live prices, sparklines, market stats, and interactive Chart.js price charts via CoinGecko API.',
         icon: '₿',
-        folder: { 'kimi-k2-6': './crypto-dashboard', 'opus-4-8': './opus-4-8/crypto-dashboard' },
+        folder: { 'kimi-k2-6': './crypto-dashboard', 'opus-4-8': './opus-4-8/crypto-dashboard', 'gpt-5-5': './gpt-5-5/crypto-dashboard' },
     },
     {
         id: 'world-monitor',
         name: 'World Monitor',
         description: 'Command-center style intelligence dashboard aggregating global stocks, indices, commodities, forex, crypto, treasury yields, weather, and news feeds.',
         icon: '🌐',
-        folder: { 'kimi-k2-6': './world-monitor', 'opus-4-8': './opus-4-8/world-monitor' },
+        folder: { 'kimi-k2-6': './world-monitor', 'opus-4-8': './opus-4-8/world-monitor', 'gpt-5-5': './gpt-5-5/world-monitor' },
     },
     {
         id: 'pelican-bicycle',
         name: 'Pelican on a Bicycle',
         description: 'A whimsical SVG illustration of a pelican wearing a sailor cap and riding a bicycle along a sunny road. Pure vector art with CSS animations.',
         icon: '🐦',
-        folder: { 'kimi-k2-6': './pelican-bicycle', 'opus-4-8': './opus-4-8/pelican-bicycle' },
+        folder: { 'kimi-k2-6': './pelican-bicycle', 'opus-4-8': './opus-4-8/pelican-bicycle', 'gpt-5-5': './gpt-5-5/pelican-bicycle' },
     },
 ];
 

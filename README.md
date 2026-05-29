@@ -7,6 +7,7 @@ every project link between models.
 Currently featured:
 - **Kimi K2.6** — state-of-the-art open-source coding model
 - **Claude Opus 4.8** — Anthropic's frontier coding/agent model (released 2026-05-28)
+- **GPT 5.5** — OpenAI-labeled local build lane created with agent-team workflow
 
 ## Quick Start
 
@@ -35,6 +36,7 @@ const projects = [
         folder: {
             'kimi-k2-6': './my-project',
             'opus-4-8':  './opus-4-8/my-project',
+            'gpt-5-5':   './gpt-5-5/my-project',
         },
     },
 ];
@@ -71,6 +73,15 @@ const projects = [
 ├── pelican-bicycle/
 │
 ├── opus-4-8/               # Claude Opus 4.8 builds (same prompts)
+│   ├── yingzao-fashi/
+│   ├── space-shooter/
+│   ├── voxel-world/
+│   ├── kanban/
+│   ├── crypto-dashboard/
+│   ├── world-monitor/
+│   └── pelican-bicycle/
+│
+├── gpt-5-5/                # GPT 5.5 builds (same prompts)
 │   ├── yingzao-fashi/
 │   ├── space-shooter/
 │   ├── voxel-world/
